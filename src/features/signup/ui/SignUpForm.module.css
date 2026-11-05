@@ -1,0 +1,28 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.agreement {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.strong {
+  font-weight: 500;
+  color: var(--color-gray-100);
+}
+
+.muted {
+  color: var(--color-gray-50);
+}
+
+.fieldError {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-red-50);
+}

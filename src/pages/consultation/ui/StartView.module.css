@@ -1,0 +1,70 @@
+.view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  height: 100%;
+  padding: 1.25rem 3.5rem;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.description {
+  margin: 0;
+  font-size: 1rem;
+  line-height: normal;
+  color: var(--color-gray-50);
+}
+
+.input {
+  max-width: 48.125rem;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 0.5rem 0.875rem;
+  border: 0.0625rem solid var(--color-gray-20);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  font-size: 0.875rem;
+  line-height: normal;
+  color: var(--color-gray-50);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--color-main-60);
+  color: var(--color-main-60);
+}
+
+.chip:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}

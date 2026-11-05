@@ -1,0 +1,84 @@
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fieldLabel {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--color-gray-50);
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 0.0625rem solid transparent;
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.value {
+  font-family: inherit;
+}
+
+.copy {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.copy:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+  border-radius: 0.25rem;
+}
+
+.copied {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-main-60);
+}
+
+.input {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-gray-30);
+}
+
+.input:focus {
+  border-color: var(--color-main-60);
+}
+
+.input.invalid {
+  border-color: var(--color-red-50);
+}

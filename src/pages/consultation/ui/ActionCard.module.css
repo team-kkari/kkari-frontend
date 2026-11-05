@@ -1,0 +1,92 @@
+/* 대화 안에 들어가는 카드(선택지·AWS 연결·Terraform 업로드) 공통 스타일 */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 22.5rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 1.25rem;
+  border: none;
+  border-radius: var(--radius-medium);
+  background: var(--color-background-subtle);
+  transition: opacity 0.2s;
+}
+
+/* 완료된 카드 */
+.card:disabled,
+.card.done {
+  opacity: 0.5;
+}
+
+.title {
+  margin: 0;
+  padding: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+/* fieldset 안의 legend를 padding 안쪽으로 */
+legend.title {
+  float: left;
+  width: 100%;
+}
+
+.primaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--radius-small);
+  background: var(--color-main-60);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-main-70);
+}
+
+.primaryButton:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}
+
+/* 입력이 부족해 아직 누를 수 없는 상태 */
+.primaryButton:disabled {
+  background: var(--color-gray-50);
+  cursor: not-allowed;
+}
+
+/* 완료 후 잠긴 버튼 */
+.primaryButton.completed {
+  background: var(--color-gray-10);
+  color: var(--color-gray-30);
+  font-weight: 500;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: normal;
+  color: var(--color-gray-50);
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: normal;
+  color: var(--color-red-50);
+}
