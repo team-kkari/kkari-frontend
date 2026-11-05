@@ -6,6 +6,7 @@ import { recommendationQueries, type RecommendationResult } from '@/entities/rec
 import { CompareModal } from '@/features/compare-recommendations'
 import { icons } from '@/shared/ui'
 import { ArchitectureCanvas } from '@/widgets/architecture-canvas'
+import { CostSummary } from '@/widgets/cost-summary'
 import { RecommendationPanel } from '@/widgets/recommendation-panel'
 import { Sidebar } from '@/widgets/sidebar'
 
@@ -40,6 +41,12 @@ function ResultView({ result }: { result: RecommendationResult }) {
             추천 아키텍처 {total}개 · 우선순위 {result.priority}
           </p>
         </header>
+
+        <CostSummary
+          key={current.id}
+          recommendation={current}
+          currentMonthlyUsd={result.currentMonthlyUsd}
+        />
 
         <div className="flex w-full shrink-0 gap-2.5 rounded-medium bg-main-10 px-4 py-3">
           <img src={icons.sparkle} alt="" width={16} height={16} className="shrink-0" />
