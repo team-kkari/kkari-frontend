@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ApiError, useSessionStore } from '@/shared/api'
 import { signUp } from '../api/signup'
 import type { SignUpValues } from './validate'
@@ -6,11 +6,16 @@ import type { SignUpValues } from './validate'
 /** 회원가입 mutation. 성공하면 세션을 저장한다 (이동은 호출하는 쪽이 정한다) */
 export function useSignUp() {
   const setSession = useSessionStore((state) => state.setSession)
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ email, password, name, companyName }: SignUpValues) =>
       signUp({ email, password, name, companyName }),
-    onSuccess: setSession,
+    onSuccess: (session) => {
+      // 세션이 만료된 뒤 다른 계정으로 들어와도 이전 계정의 데이터가 보이지 않게 한다
+      queryClient.clear()
+      setSession(session)
+    },
   })
 }
 

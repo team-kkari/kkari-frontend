@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { request } from './client'
+import { ApiError } from './errors'
 
 /** 백엔드 AnalysisJobResponse. 인프라 분석(ANALYSIS)과 아키텍처 생성(ARCHITECTURE)이 같은 작업 모델을 쓴다 */
 export type JobType = 'ANALYSIS' | 'ARCHITECTURE'
@@ -29,6 +30,11 @@ export const jobQueries = {
       queryKey: [...jobQueries.all(), jobId],
       queryFn: () => request<Job>(`/v1/jobs/${jobId}`),
       staleTime: 0,
-      refetchInterval: (query) => (isJobFinished(query.state.data) ? false : POLL_INTERVAL_MS),
+      // 끝났거나, 없는 작업·권한 없음(4xx)처럼 다시 해도 소용없는 오류면 멈춘다
+      refetchInterval: (query) => {
+        const error = query.state.error
+        if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false
+        return isJobFinished(query.state.data) ? false : POLL_INTERVAL_MS
+      },
     }),
 }

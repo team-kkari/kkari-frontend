@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ApiError, useSessionStore } from '@/shared/api'
 import { login, type LoginRequest } from '../api/login'
 
@@ -8,6 +8,7 @@ import { login, type LoginRequest } from '../api/login'
  */
 export function useLogin() {
   const setSession = useSessionStore((state) => state.setSession)
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (body: LoginRequest) => {
@@ -17,7 +18,11 @@ export function useLogin() {
       }
       return session
     },
-    onSuccess: setSession,
+    onSuccess: (session) => {
+      // 세션이 만료된 뒤 다른 계정으로 들어와도 이전 계정의 데이터가 보이지 않게 한다
+      queryClient.clear()
+      setSession(session)
+    },
   })
 }
 

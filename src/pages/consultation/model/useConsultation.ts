@@ -12,7 +12,7 @@ import {
 } from '@/entities/chat'
 import { projectQueries, type ProjectDetail } from '@/entities/project'
 import { ApiError } from '@/shared/api'
-import { CLOSING_MESSAGE, INFRA_CHOICE, INFRA_INTRO } from './script'
+import { CLOSING_MESSAGE, INFRA_INTRO, TERRAFORM_CHOICE, TERRAFORM_INTRO } from './script'
 import type { ChatMessage, CollectedInfo, ConnectResult } from './types'
 
 type AiMessage = Extract<ChatMessage, { role: 'ai' }>
@@ -65,7 +65,8 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
   const [cards, setCards] = useState<ChatMessage[]>([])
   const [designing, setDesigning] = useState(false)
   const [cardError, setCardError] = useState<string | null>(null)
-  const [connection, setConnection] = useState<'aws' | 'terraform' | null>(null)
+  const [awsDone, setAwsDone] = useState(false)
+  const [terraformDone, setTerraformDone] = useState(false)
   const cardsStarted = useRef(false)
   const chatStarted = useRef(false)
 
@@ -84,8 +85,13 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
   const saveReq = useMutation({
     mutationFn: () => {
       const draft = history.data?.requirementsDraft
-      // AI 가 요구사항 초안을 못 만든 경우엔 저장하지 않고 넘어간다
-      return draft ? saveRequirements(projectId, draft) : Promise.resolve(null)
+      // 백엔드는 우선순위를 1개 이상 요구한다(빈 배열은 400). 초안이 없거나 비어 있으면 저장하지 않고 넘어간다
+      if (!draft?.priorities?.length) return Promise.resolve(null)
+      return saveRequirements(projectId, {
+        ...draft,
+        content: draft.content || history.data?.profile?.goal || project.companyName,
+        containsPersonalData: draft.containsPersonalData ?? false,
+      })
     },
   })
 
@@ -110,7 +116,7 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     setCards(
       analyzed
         ? [{ id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} }]
-        : [{ id: nextLocalId(), role: 'ai', text: INFRA_INTRO, choice: INFRA_CHOICE }],
+        : [{ id: nextLocalId(), role: 'ai', text: INFRA_INTRO, connect: { kind: 'aws' } }],
     )
   }, [ready, send.isPending, project.stage])
 
@@ -122,11 +128,19 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     const target = cards.find((m) => m.id === messageId)
     if (target?.role !== 'ai' || !target.choice || target.choice.selectedId) return
     const option = target.choice.options.find((o) => o.id === optionId)
-    if (!option?.followUp) return
-    const { followUp } = option
+    if (!option) return
     updateCard(messageId, (m) =>
       m.choice ? { ...m, choice: { ...m.choice, selectedId: optionId } } : m,
     )
+    const { followUp } = option
+    if (!followUp) {
+      // 건너뛰기: 바로 설계 확인으로 넘어간다
+      setCards((prev) => [
+        ...prev,
+        { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
+      ])
+      return
+    }
     setCards((prev) => [
       ...prev,
       {
@@ -144,9 +158,17 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     updateCard(messageId, (m) =>
       m.connect ? { ...m, connect: { ...m.connect, done: true, result } } : m,
     )
-    if (kind) setConnection(kind)
     // 분석으로 의뢰 단계가 바뀌었을 수 있다
     void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
+    if (kind === 'aws') {
+      setAwsDone(true)
+      setCards((prev) => [
+        ...prev,
+        { id: nextLocalId(), role: 'ai', text: TERRAFORM_INTRO, choice: TERRAFORM_CHOICE },
+      ])
+      return
+    }
+    if (kind === 'terraform') setTerraformDone(true)
     setCards((prev) => [
       ...prev,
       { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
@@ -197,14 +219,12 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     priority: priorities || undefined,
     budget: formatBudget(profile?.monthlyBudget, profile?.currency),
     infraConnection:
-      connection === 'aws'
-        ? 'AWS 계정 연결'
-        : connection === 'terraform'
-          ? 'Terraform 파일'
-          : project.stage !== 'RECEIVED'
-            ? 'AWS 계정 연결'
-            : undefined,
-    infraAnalysis: connection || project.stage !== 'RECEIVED' ? '완료' : undefined,
+      awsDone || project.stage !== 'RECEIVED'
+        ? terraformDone
+          ? 'AWS 계정 + Terraform'
+          : 'AWS 계정 연결'
+        : undefined,
+    infraAnalysis: awsDone || project.stage !== 'RECEIVED' ? '완료' : undefined,
   }
 
   // 마지막 서버 메시지가 내 것이면 AI 응답이 비어 있는 것이다 (전송 실패)

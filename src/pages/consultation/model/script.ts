@@ -17,24 +17,31 @@ export const SUGGESTIONS = [
   '새 서비스를 설계하고 싶어요',
 ]
 
-/** AI 가 필요한 정보를 다 모았을 때 이어서 묻는 인프라 연결 방식 */
-export const INFRA_INTRO = '필요한 정보를 모두 모았어요. 이어서 인프라 연결을 진행할게요.'
+/**
+ * AI 가 필요한 정보를 다 모았을 때 이어서 안내하는 인프라 연결.
+ * 백엔드는 AWS 연결·분석이 끝나야 아키텍처를 만들 수 있어서(Terraform 만으로는 409 AR001) AWS 연결이 필수다.
+ */
+export const INFRA_INTRO =
+  '필요한 정보를 모두 모았어요. 이어서 고객사 AWS 계정을 연결해 인프라를 분석할게요.'
 
-export const INFRA_CHOICE: Omit<ChoiceCard, 'selectedId'> = {
-  question: '인프라 정보를 어떻게 연결할까요?',
-  defaultId: 'aws',
+/** AWS 분석이 끝난 뒤 보충 자료로 Terraform state 를 올릴지 묻는다 (선택) */
+export const TERRAFORM_INTRO =
+  'AWS 분석을 마쳤어요. Terraform state 파일이 있으면 함께 올려 주세요.'
+
+export const TERRAFORM_CHOICE: Omit<ChoiceCard, 'selectedId'> = {
+  question: 'Terraform state 파일도 올릴까요? (선택)',
+  defaultId: 'skip',
   options: [
-    {
-      id: 'aws',
-      label: 'AWS 계정 연결',
-      description: '실시간 비용·사용률까지 분석',
-      followUp: { message: '고객사 AWS 계정을 연결할게요.', connect: 'aws' },
-    },
     {
       id: 'terraform',
       label: 'Terraform 파일 업로드',
-      description: '계정 연결 없이 구조만 분석',
+      description: '코드로 관리하는 구성을 함께 참고해요',
       followUp: { message: 'Terraform state 파일을 올려 주세요.', connect: 'terraform' },
+    },
+    {
+      id: 'skip',
+      label: '건너뛰기',
+      description: 'AWS 분석 결과만으로 설계해요',
     },
   ],
 }

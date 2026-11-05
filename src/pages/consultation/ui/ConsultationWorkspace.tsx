@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Navigate, useNavigate } from 'react-router'
 import { projectQueries, projectResultPath, type ProjectDetail } from '@/entities/project'
+import { recommendationQueries } from '@/entities/recommendation'
 import { useConsultation } from '../model/useConsultation'
 import { ChatView } from './ChatView'
 import { DesigningView } from './DesigningView'
@@ -16,8 +17,18 @@ interface ConsultationWorkspaceProps {
 /** 프로젝트 하나의 작업 영역(대화 + 수집한 정보). 프로젝트 정보를 받은 뒤에 상담을 연다 */
 export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationWorkspaceProps) {
   const project = useQuery(projectQueries.detail(projectId))
+  // 백엔드가 추천 뒤에도 단계를 ANALYZED 로 두므로(RECOMMENDED 로 올리는 곳이 없음), 이미 만든 결과가 있는지 직접 본다.
+  // 결과가 없으면 AR002 로 실패하고 그대로 상담을 이어간다
+  const analyzed = project.data?.stage === 'ANALYZED'
+  const existingResult = useQuery({
+    ...recommendationQueries.result(projectId),
+    enabled: analyzed,
+    retry: false,
+  })
 
-  if (project.isPending) return <Status message="의뢰를 불러오는 중…" />
+  if (project.isPending || (analyzed && existingResult.isPending)) {
+    return <Status message="의뢰를 불러오는 중…" />
+  }
   if (project.isError) {
     return (
       <Status
@@ -27,7 +38,7 @@ export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationW
     )
   }
   // 추천이 끝난 의뢰는 대화 대신 결과를 보여준다
-  if (project.data.stage === 'RECOMMENDED') {
+  if (project.data.stage === 'RECOMMENDED' || existingResult.isSuccess) {
     return <Navigate to={projectResultPath(projectId)} replace />
   }
   return <ConsultationRoom project={project.data} firstMessage={firstMessage} />

@@ -134,7 +134,8 @@ export function AwsConnectCard({
   const analysisFailed = job?.status === 'FAILED'
   const analysisSucceeded = job?.status === 'SUCCEEDED'
   const isAnalyzing =
-    isStartingAnalysis || (jobId !== undefined && !analysisFailed && !analysisSucceeded)
+    isStartingAnalysis ||
+    (jobId !== undefined && !analysisFailed && !analysisSucceeded && !(jobQuery.isError && !job))
   const locked = done || connect.isPending || isAnalyzing || analysisSucceeded
 
   // 분석이 끝나면 대화를 다음 단계로 넘긴다 (한 번만)
