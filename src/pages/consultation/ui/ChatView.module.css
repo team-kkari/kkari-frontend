@@ -66,6 +66,8 @@
   font-weight: 500;
   line-height: 1.4;
   color: var(--color-gray-100);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .userRow {
@@ -88,6 +90,7 @@
   color: var(--color-white);
   word-break: keep-all;
   overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .mark {
