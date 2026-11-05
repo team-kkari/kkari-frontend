@@ -48,8 +48,8 @@ function ResultView({ result }: { result: RecommendationResult }) {
           currentMonthlyUsd={result.currentMonthlyUsd}
         />
 
-        <div className="flex w-full shrink-0 items-start gap-2.5 rounded-medium bg-main-10 px-4 py-3">
-          <img src={icons.sparkle} alt="" width={16} height={16} className="mt-0.5 shrink-0" />
+        <div className="flex w-full shrink-0 gap-2.5 rounded-medium bg-main-10 px-4 py-3">
+          <img src={icons.sparkle} alt="" width={16} height={16} className="shrink-0" />
           <p className="m-0 flex-1 text-sm leading-normal text-gray-100">
             <GlossaryText text={result.summary} />
           </p>
