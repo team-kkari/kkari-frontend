@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { defaultAvatar, logoutIcon, plusIcon, waycoLogo } from '@/shared/ui'
 import styles from './AppSidebar.module.css'
 
@@ -31,7 +32,9 @@ export function AppSidebar({
 }: AppSidebarProps) {
   return (
     <aside className={styles.sidebar}>
-      <img className={styles.logo} src={waycoLogo} alt="Wayco" />
+      <Link to="/" className={styles.logo} aria-label="Wayco 홈으로">
+        <img className={styles.logoImage} src={waycoLogo} alt="" />
+      </Link>
       <div className={styles.group}>
         <button type="button" className={styles.newButton} onClick={onNewConsultation}>
           <img src={plusIcon} alt="" width={22} height={22} />새 의뢰 시작

@@ -20,8 +20,19 @@
 }
 
 .logo {
+  display: flex;
   flex-shrink: 0;
   align-self: flex-start;
+  border-radius: 0.25rem;
+}
+
+.logo:focus-visible {
+  outline: 0.125rem solid var(--color-main-50);
+  outline-offset: 0.125rem;
+}
+
+.logoImage {
+  display: block;
   width: auto;
   height: 1.875rem;
 }

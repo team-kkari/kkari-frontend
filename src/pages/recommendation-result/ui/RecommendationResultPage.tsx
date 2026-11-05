@@ -1,22 +1,37 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { GlossaryText } from '@/entities/glossary'
 import { recommendationQueries, type RecommendationResult } from '@/entities/recommendation'
+import { requestQueries } from '@/entities/request'
 import { CompareModal } from '@/features/compare-recommendations'
 import { icons } from '@/shared/ui'
+import { AppSidebar } from '@/widgets/app-sidebar'
 import { ArchitectureCanvas } from '@/widgets/architecture-canvas'
 import { CostSummary } from '@/widgets/cost-summary'
 import { RecommendationPanel } from '@/widgets/recommendation-panel'
-import { Sidebar } from '@/widgets/sidebar'
 
 export function RecommendationResultPage() {
   const { requestId = '' } = useParams()
+  const navigate = useNavigate()
   const { data, isPending, isError } = useQuery(recommendationQueries.result(requestId))
+  const { data: requests = [] } = useQuery(requestQueries.list())
 
   return (
     <div className="flex h-screen min-w-[1280px] gap-[30px] bg-canvas p-5">
-      <Sidebar />
+      <AppSidebar
+        consultations={requests.map((r) => ({
+          id: r.id,
+          name: r.title,
+          status: r.status === 'in_progress' ? 'in-progress' : 'done',
+        }))}
+        activeId={requestId}
+        userName="testUser"
+        onNewConsultation={() => navigate('/')}
+        onSelect={(id) => navigate(`/requests/${id}`)}
+        // 의뢰 화면과 같게: 세션 저장은 API 연결 때 붙이고 지금은 로그인 화면으로만 보낸다
+        onLogout={() => navigate('/login', { replace: true })}
+      />
       {isPending && <p className="m-auto text-sm text-gray-50">추천 결과를 불러오는 중…</p>}
       {isError && <p className="m-auto text-sm text-red-20">추천 결과를 불러오지 못했어요.</p>}
       {/* 의뢰가 바뀌면 보고 있던 후보·모달 상태를 초기화 */}
