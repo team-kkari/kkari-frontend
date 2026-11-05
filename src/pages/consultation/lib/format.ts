@@ -21,6 +21,20 @@ export function formatBudget(amount?: number | null, currency?: string | null) {
   return isBudgetCurrency(currency) ? `${value} ${currency}` : `${value} (통화 확인 필요)`
 }
 
+/** 우선순위 표시명. AI 카테고리(소문자 cost 등)와 백엔드 enum(대문자 COST 등)을 모두 받는다 */
+const PRIORITY_NAME: Record<string, string> = {
+  cost: '비용',
+  performance: '성능',
+  reliability: '안정성',
+  security: '보안',
+  operations: '운영',
+  sustainability: '지속 가능성',
+}
+
+/** 상담 프로필의 우선순위 값을 한글로. 모르는 값은 그대로 보여 준다 */
+export const priorityLabel = (priority: string) =>
+  PRIORITY_NAME[priority.trim().toLowerCase()] ?? priority
+
 /** 12345 → 12KB 처럼 byte 크기를 읽기 쉽게 */
 export function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes}B`

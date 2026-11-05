@@ -2,18 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   chatQueries,
-  PRIORITY_LABEL,
   saveRequirements,
   sendChatMessage,
   type ChatMessageDto,
   type ChatState,
-  type Priority,
   type SendChatResponse,
 } from '@/entities/chat'
 import { projectQueries, type ProjectDetail } from '@/entities/project'
 import { isArchitectureJobActive, type LatestArchitectureJob } from '@/entities/recommendation'
 import { ApiError } from '@/shared/api'
-import { formatBudget, lacksBudgetCurrency } from '../lib/format'
+import { formatBudget, lacksBudgetCurrency, priorityLabel } from '../lib/format'
 import { missingLabelsOf } from '../lib/missing-fields'
 import {
   CLOSING_MESSAGE,
@@ -293,7 +291,7 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
   const canType = history.isSuccess && !send.isPending && !awaitingCard && !saveReq.isPending
 
   const profile = history.data?.profile
-  const priorities = profile?.priorities?.map((p) => PRIORITY_LABEL[p as Priority] ?? p).join(' > ')
+  const priorities = profile?.priorities?.map(priorityLabel).join(' > ')
   const info: CollectedInfo = {
     customer: profile?.companyName || project.companyName,
     request: profile?.goal || profile?.workload || undefined,

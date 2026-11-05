@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
-import { PROJECT_STAGE_LABEL, projectQueries } from '@/entities/project'
+import { MSP_PROJECTS_PATH, PROJECT_STAGE_LABEL, projectQueries } from '@/entities/project'
 import { userQueries } from '@/entities/user'
 import { useSessionStore } from '@/shared/api'
 import { defaultAvatar, logoutIcon, plusIcon, waycoLogo } from '@/shared/ui'
 import styles from './AppSidebar.module.css'
+
+const PROJECT_LIST_REFRESH_MS = 30_000
 
 interface AppSidebarProps {
   /** 지금 보고 있는 프로젝트의 projectId */
@@ -26,7 +28,17 @@ export function AppSidebar({
   onSelect,
   onLogout,
 }: AppSidebarProps) {
-  const { data: projects, isPending, isError, refetch } = useQuery(projectQueries.list())
+  // 고객이 새로 접수한 서비스가 바로 보이도록 30초마다, 그리고 창으로 돌아올 때 다시 불러온다
+  const {
+    data: projects,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery({
+    ...projectQueries.list(),
+    refetchInterval: PROJECT_LIST_REFRESH_MS,
+    refetchOnWindowFocus: true,
+  })
   // 아직 이 API 가 없는 서버에서는 실패하므로, 이름이 없으면 대체 문구로 화면을 유지한다
   const me = useQuery(userQueries.me())
   const role = useSessionStore((state) => state.session?.role)
@@ -42,6 +54,9 @@ export function AppSidebar({
         <button type="button" className={styles.newButton} onClick={onNewConsultation}>
           <img src={plusIcon} alt="" width={22} height={22} />새 의뢰 시작
         </button>
+        <Link to={MSP_PROJECTS_PATH} className={styles.projectsLink}>
+          프로젝트 · 고객 접수 확인
+        </Link>
         <hr className={styles.divider} />
         <nav aria-label="의뢰 목록">
           {isPending && (
