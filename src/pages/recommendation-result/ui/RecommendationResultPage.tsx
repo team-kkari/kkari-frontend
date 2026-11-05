@@ -43,7 +43,7 @@ function ResultView({ result }: { result: RecommendationResult }) {
         </header>
 
         <CostSummary
-          key={current.id}
+          key={`cost-${current.id}`}
           recommendation={current}
           currentMonthlyUsd={result.currentMonthlyUsd}
         />
@@ -56,7 +56,7 @@ function ResultView({ result }: { result: RecommendationResult }) {
         </div>
 
         <ArchitectureCanvas
-          key={current.id}
+          key={`canvas-${current.id}`}
           layout={current.layout}
           costItems={current.cost.items}
           candidateCount={total}
@@ -65,7 +65,7 @@ function ResultView({ result }: { result: RecommendationResult }) {
       </main>
 
       <RecommendationPanel
-        key={current.id}
+        key={`panel-${current.id}`}
         recommendation={current}
         total={total}
         onPrev={() => setIndex((i) => (i - 1 + total) % total)}
