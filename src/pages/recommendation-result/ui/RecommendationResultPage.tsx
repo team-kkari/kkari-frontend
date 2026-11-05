@@ -1,21 +1,37 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { GlossaryText } from '@/entities/glossary'
 import { recommendationQueries, type RecommendationResult } from '@/entities/recommendation'
+import { requestQueries } from '@/entities/request'
 import { CompareModal } from '@/features/compare-recommendations'
 import { icons } from '@/shared/ui'
+import { AppSidebar, type SidebarConsultation } from '@/widgets/app-sidebar'
 import { ArchitectureCanvas } from '@/widgets/architecture-canvas'
 import { RecommendationPanel } from '@/widgets/recommendation-panel'
-import { Sidebar } from '@/widgets/sidebar'
 
 export function RecommendationResultPage() {
   const { requestId = '' } = useParams()
+  const navigate = useNavigate()
   const { data, isPending, isError } = useQuery(recommendationQueries.result(requestId))
+  const { data: requests = [] } = useQuery(requestQueries.list())
+
+  const consultations: SidebarConsultation[] = requests.map((req) => ({
+    id: req.id,
+    name: req.title,
+    status: req.status === 'in_progress' ? 'in-progress' : 'done',
+  }))
 
   return (
     <div className="flex h-screen min-w-[1280px] gap-[30px] bg-canvas p-5">
-      <Sidebar />
+      <AppSidebar
+        consultations={consultations}
+        activeId={requestId}
+        userName="testUser"
+        onNewConsultation={() => navigate('/')}
+        onSelect={(id) => navigate(`/requests/${id}`)}
+        onLogout={() => navigate('/login', { replace: true })}
+      />
       {isPending && <p className="m-auto text-sm text-gray-50">추천 결과를 불러오는 중…</p>}
       {isError && <p className="m-auto text-sm text-red-20">추천 결과를 불러오지 못했어요.</p>}
       {/* 의뢰가 바뀌면 보고 있던 후보·모달 상태를 초기화 */}
