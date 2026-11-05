@@ -1,4 +1,9 @@
-/* Figma(Wayco-design) 변수 기준 디자인 토큰 */
+/*
+ * CSS Module(로그인·회원가입·의뢰 접수 화면)용 디자인 토큰.
+ * index.css의 @theme은 Tailwind 클래스에서 쓴 변수만 CSS로 내보내므로,
+ * CSS Module이 직접 var()로 참조하는 값은 여기서 항상 정의해 둔다.
+ * Tailwind로 전환하면 @theme으로 합치고 이 파일은 지운다.
+ */
 :root {
   --color-white: #ffffff;
 
@@ -32,8 +37,4 @@
   --radius-large: 16px;
   --radius-xlarge: 20px;
   --radius-circle: 999px;
-
-  --font-family-base:
-    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI',
-    sans-serif;
 }
