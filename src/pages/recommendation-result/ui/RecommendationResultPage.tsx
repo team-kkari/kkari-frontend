@@ -6,6 +6,7 @@ import { recommendationQueries, type RecommendationResult } from '@/entities/rec
 import { CompareModal } from '@/features/compare-recommendations'
 import { icons } from '@/shared/ui'
 import { ArchitectureCanvas } from '@/widgets/architecture-canvas'
+import { CostSummary } from '@/widgets/cost-summary'
 import { RecommendationPanel } from '@/widgets/recommendation-panel'
 import { Sidebar } from '@/widgets/sidebar'
 
@@ -41,6 +42,12 @@ function ResultView({ result }: { result: RecommendationResult }) {
           </p>
         </header>
 
+        <CostSummary
+          key={`cost-${current.id}`}
+          recommendation={current}
+          currentMonthlyUsd={result.currentMonthlyUsd}
+        />
+
         <div className="flex w-full shrink-0 gap-2.5 rounded-medium bg-main-10 px-4 py-3">
           <img src={icons.sparkle} alt="" width={16} height={16} className="shrink-0" />
           <p className="m-0 flex-1 text-sm leading-normal text-gray-100">
@@ -49,7 +56,7 @@ function ResultView({ result }: { result: RecommendationResult }) {
         </div>
 
         <ArchitectureCanvas
-          key={current.id}
+          key={`canvas-${current.id}`}
           layout={current.layout}
           costItems={current.cost.items}
           candidateCount={total}
@@ -58,7 +65,7 @@ function ResultView({ result }: { result: RecommendationResult }) {
       </main>
 
       <RecommendationPanel
-        key={current.id}
+        key={`panel-${current.id}`}
         recommendation={current}
         total={total}
         onPrev={() => setIndex((i) => (i - 1 + total) % total)}
