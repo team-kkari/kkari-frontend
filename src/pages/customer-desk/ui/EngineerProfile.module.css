@@ -1,0 +1,42 @@
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-circle);
+  background: var(--color-white);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-gray-100);
+}
+
+.company {
+  font-size: 0.8125rem;
+  color: var(--color-gray-50);
+}
