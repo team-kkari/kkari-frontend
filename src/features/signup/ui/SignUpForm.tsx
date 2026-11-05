@@ -18,11 +18,12 @@ const INITIAL_VALUES: SignUpValues = {
 }
 
 interface SignUpFormProps {
+  role: 'customer' | 'engineer'
   /** 검증을 통과했을 때 호출. API 연결은 후속 작업 */
   onSubmit?: (values: SignUpValues) => void
 }
 
-export function SignUpForm({ onSubmit }: SignUpFormProps) {
+export function SignUpForm({ role, onSubmit }: SignUpFormProps) {
   const [values, setValues] = useState(INITIAL_VALUES)
   const [errors, setErrors] = useState<SignUpErrors>({})
 
@@ -57,6 +58,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <TextField
         label="이름"
+        variant="filled"
         name="name"
         autoComplete="name"
         placeholder="이름을 입력하세요"
@@ -65,7 +67,8 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
         onChange={(event) => update('name', event.target.value)}
       />
       <TextField
-        label="소속 회사"
+        label={role === 'customer' ? '회사명' : '소속 회사'}
+        variant="filled"
         name="companyName"
         autoComplete="organization"
         placeholder="회사명을 입력하세요"
@@ -75,6 +78,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
       />
       <TextField
         label="이메일"
+        variant="filled"
         type="email"
         name="email"
         autoComplete="email"
@@ -85,17 +89,19 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
       />
       <TextField
         label="비밀번호"
+        variant="filled"
         type="password"
         name="password"
         autoComplete="new-password"
         placeholder="비밀번호를 입력하세요"
-        helperText="8자 이상, 영문과 숫자를 포함해 주세요"
+        helperText="8자 이상 입력해 주세요"
         value={values.password}
         error={errors.password}
         onChange={(event) => update('password', event.target.value)}
       />
       <TextField
         label="비밀번호 확인"
+        variant="filled"
         type="password"
         name="passwordConfirm"
         autoComplete="new-password"
@@ -122,7 +128,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
           </p>
         )}
       </div>
-      <Button type="submit">회원가입</Button>
+      <Button type="submit">가입하기</Button>
     </form>
   )
 }
