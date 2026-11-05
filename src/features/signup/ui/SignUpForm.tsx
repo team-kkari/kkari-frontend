@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { Button, Checkbox, TextField } from '@/shared/ui'
 import {
   validateSignUp,
@@ -26,9 +26,16 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
   const [values, setValues] = useState(INITIAL_VALUES)
   const [errors, setErrors] = useState<SignUpErrors>({})
 
+  const agreementErrorId = useId()
+
   const update = <K extends SignUpField>(field: K, value: SignUpValues[K]) => {
     setValues((prev) => ({ ...prev, [field]: value }))
-    setErrors((prev) => ({ ...prev, [field]: undefined }))
+    setErrors((prev) => ({
+      ...prev,
+      [field]: undefined,
+      // 비밀번호를 고치면 '일치하지 않아요' 에러도 더 이상 맞지 않으므로 같이 지운다
+      ...(field === 'password' && { passwordConfirm: undefined }),
+    }))
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -101,6 +108,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
         <Checkbox
           checked={values.agreed}
           invalid={Boolean(errors.agreed)}
+          describedBy={errors.agreed ? agreementErrorId : undefined}
           onChange={(checked) => update('agreed', checked)}
         >
           <span className={styles.strong}>서비스 이용약관</span>
@@ -108,7 +116,11 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
           <span className={styles.strong}>개인정보 처리방침</span>
           <span className={styles.muted}>에 동의해요</span>
         </Checkbox>
-        {errors.agreed && <p className={styles.fieldError}>{errors.agreed}</p>}
+        {errors.agreed && (
+          <p id={agreementErrorId} className={styles.fieldError}>
+            {errors.agreed}
+          </p>
+        )}
       </div>
       <Button type="submit">회원가입</Button>
     </form>
