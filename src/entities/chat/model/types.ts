@@ -39,6 +39,8 @@ export interface IntakeProfile {
   constraints?: string | null
   operations?: string | null
   security?: string | null
+  /** 회사가 아키텍처를 설계할 때 지키는 원칙·꼭 고려할 점. 새 백엔드부터 있다 */
+  designPrinciples?: string | null
 }
 
 /** 요구사항. 백엔드 SaveRequirementsRequest / RequirementsDraftResponseDto 가 같은 모양이다 */

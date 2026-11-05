@@ -9,6 +9,7 @@ export const INFO_ITEMS: { key: InfoKey; label: string }[] = [
   { key: 'request', label: '의뢰 내용' },
   { key: 'priority', label: '우선순위' },
   { key: 'budget', label: '월 예산' },
+  { key: 'principles', label: '설계 원칙' },
   { key: 'infraConnection', label: '인프라 연결' },
   { key: 'infraAnalysis', label: '인프라 분석' },
 ]
