@@ -1,3 +1,5 @@
+import type { JobStatus } from '@/shared/api'
+
 export type ScoreKey = 'cost' | 'performance' | 'reliability' | 'operations' | 'migration'
 
 /** 1~5점, 높을수록 좋음 */
@@ -80,17 +82,37 @@ export interface Recommendation {
   cons: string[]
   migrationSteps: string[]
   cost: CostBreakdown
+  /** 현재 대비 증감. comparable 이 false 면 자리표시용 0 이다 */
   vsCurrent: { usd: number; pct: number }
+  /** 현재 월 비용을 알고 이 안의 비용도 계산돼 vsCurrent 가 실제 값인지 */
+  comparable: boolean
   layout: DiagramLayout
 }
 
-/** 한 의뢰에 대한 추천 결과 전체 */
+/**
+ * 프로젝트의 가장 최근 설계 작업. 마지막으로 성공한 결과를 만든 작업과 다를 수 있다
+ * (새 작업이 진행 중이거나 실패해도 이전 성공 결과는 그대로 남는다)
+ */
+export interface LatestArchitectureJob {
+  jobId: number
+  status: JobStatus
+  /** 실패하지 않았으면 비어 있다 */
+  failureReason?: string | null
+}
+
+/** 한 프로젝트(의뢰)에 대한 추천 결과 전체 */
 export interface RecommendationResult {
-  requestId: string
-  title: string
-  priority: string
+  projectId: number
+  /** 이 결과를 만든 생성 작업 */
+  jobId: number
+  /** 생성이 끝난 시각 (ISO 문자열). 오프셋이 있을 수도, 없을 수도 있어 parseServerDate/formatDate 로 다룬다 */
+  generatedAt: string
+  /** 가장 최근 설계 작업. 새 백엔드부터 있고, 옛 서버이거나 작업 기록이 없으면 비어 있다 */
+  latestJob?: LatestArchitectureJob | null
+  /** AI 순위 생성에 실패하면 빈 문자열 */
   summary: string
-  currentMonthlyUsd: number
+  /** null 이면 현재 월 비용을 알 수 없다 (고객이 주지 않았고 AI 추정도 못 함) */
+  currentMonthlyUsd: number | null
   recommendations: Recommendation[]
 }
 

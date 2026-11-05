@@ -39,7 +39,8 @@ export function MessageInput({
     event.preventDefault()
     if (!canSubmit) return
     onSubmit(text.trim())
-    setText('')
+    // 제어 모드(시작 화면)에서는 부모가 성공했을 때만 비운다. 검증·생성 실패 시 입력을 잃지 않게
+    if (value === undefined) setText('')
     setSendCount((n) => n + 1)
   }
 
@@ -51,6 +52,7 @@ export function MessageInput({
         value={text}
         placeholder={placeholder}
         disabled={disabled}
+        maxLength={2000}
         aria-label="메시지 입력"
         onChange={(event) => setText(event.target.value)}
       />

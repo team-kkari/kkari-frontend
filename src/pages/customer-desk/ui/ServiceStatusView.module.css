@@ -157,3 +157,41 @@
   color: var(--color-gray-100);
   overflow-wrap: anywhere;
 }
+
+.message {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: normal;
+  color: var(--color-gray-50);
+}
+
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: normal;
+  color: var(--color-red-50);
+}
+
+.retryButton {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-main-60);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.retryButton:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}

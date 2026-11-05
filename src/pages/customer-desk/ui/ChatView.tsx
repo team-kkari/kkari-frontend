@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import type { Engineer } from '@/entities/engineer'
 import { waycoMarkIcon } from '@/shared/ui'
-import type { ChatMessage, Engineer } from '../model/types'
+import type { ChatMessage } from '../model/types'
 import { EngineerPicker } from './EngineerPicker'
 import { MessageInput } from './MessageInput'
 import { SelectCard } from './SelectCard'

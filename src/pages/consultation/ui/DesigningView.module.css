@@ -81,3 +81,25 @@
   font-size: 0.8125rem;
   color: var(--color-gray-50);
 }
+
+.retry {
+  padding: 0.75rem 1.75rem;
+  border: none;
+  border-radius: var(--radius-small);
+  background: var(--color-main-60);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.retry:hover {
+  background: var(--color-main-70);
+}
+
+.retry:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}

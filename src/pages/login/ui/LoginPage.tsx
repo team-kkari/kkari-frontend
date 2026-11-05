@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router'
 import { LoginForm } from '@/features/login'
+import { homePathOf, useSessionStore } from '@/shared/api'
 import { AuthLayout } from '@/widgets/auth-layout'
 
 export function LoginPage() {
@@ -16,8 +17,13 @@ export function LoginPage() {
         </>
       }
     >
-      {/* API 연결 전이라 검증만 통과하면 바로 메인으로 이동 */}
-      <LoginForm onSubmit={() => navigate('/', { replace: true })} />
+      <LoginForm
+        onSuccess={() => {
+          // 저장된 세션의 역할에 맞는 첫 화면으로 보낸다
+          const role = useSessionStore.getState().session?.role
+          navigate(role ? homePathOf(role) : '/', { replace: true })
+        }}
+      />
     </AuthLayout>
   )
 }

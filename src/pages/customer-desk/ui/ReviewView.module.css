@@ -299,8 +299,20 @@
   color: var(--color-gray-100);
 }
 
-.backButton:hover {
+.backButton:hover:not(:disabled) {
   background: var(--color-gray-10);
+}
+
+.backButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitError {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-red-50);
 }
 
 .submitButton {

@@ -1,87 +1,64 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
+import { createProject, projectPath, projectQueries } from '@/entities/project'
+import { useLogout } from '@/features/logout'
+import { ApiError } from '@/shared/api'
 import { AppSidebar } from '@/widgets/app-sidebar'
-import { MOCK_DONE_CONSULTATIONS } from '../model/mockConsultations'
-import type { Consultation } from '../model/types'
 import { ConsultationWorkspace } from './ConsultationWorkspace'
+import { StartView, type StartValues } from './StartView'
 import styles from './ConsultationPage.module.css'
 
-const NEW_CONSULTATION_NAME = '새 의뢰'
-/** API 연결 전까지 완료된 의뢰마다 보여줄 추천 결과 목업 */
-const MOCK_RESULT_REQUEST_ID = 'a-shop'
-
-let consultationSeq = 0
-const createConsultation = (): Consultation => ({
-  id: `new-${++consultationSeq}`,
-  name: NEW_CONSULTATION_NAME,
-  status: 'in-progress',
-})
-
+/** 라우트 `/` 는 새 의뢰 시작 화면, `/projects/:projectId` 는 그 의뢰의 상담 화면 */
 export function ConsultationPage() {
   const navigate = useNavigate()
-  const [consultations, setConsultations] = useState<Consultation[]>(() => [
-    createConsultation(),
-    ...MOCK_DONE_CONSULTATIONS,
-  ])
-  const [activeId, setActiveId] = useState(consultations[0].id)
-  // 첫 메시지를 보낸 의뢰. 아직 시작 안 한 새 의뢰가 있으면 "새 의뢰 시작"이 그걸 재사용한다
-  const [startedIds, setStartedIds] = useState<string[]>([])
+  const queryClient = useQueryClient()
+  const logout = useLogout()
+  const { projectId: param } = useParams()
+  const location = useLocation()
+  const firstMessage = (location.state as { firstMessage?: string } | null)?.firstMessage
+  const [startError, setStartError] = useState<string | null>(null)
 
-  const update = (id: string, patch: Partial<Consultation>) => {
-    setConsultations((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)))
-  }
+  const projectId = param !== undefined && /^\d+$/.test(param) ? Number(param) : null
 
-  const openResult = () => navigate(`/requests/${MOCK_RESULT_REQUEST_ID}`)
-
-  // 완료된 의뢰는 대화 기록 대신 추천 결과(분석) 화면으로 바로 보낸다
-  const selectConsultation = (id: string) => {
-    const target = consultations.find((c) => c.id === id)
-    if (target?.status === 'done') {
-      openResult()
-      return
-    }
-    setActiveId(id)
-  }
-
-  const startNewConsultation = () => {
-    const unstarted = consultations.find(
-      (c) => c.status === 'in-progress' && !c.initial && !startedIds.includes(c.id),
-    )
-    if (unstarted) {
-      setActiveId(unstarted.id)
-      return
-    }
-    const created = createConsultation()
-    setConsultations((prev) => [created, ...prev])
-    setActiveId(created.id)
-  }
+  const create = useMutation({
+    mutationFn: ({ companyName, contactName }: StartValues) =>
+      createProject({ companyName, contactName }),
+    onSuccess: ({ projectId: createdId }, { message }) => {
+      void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
+      navigate(projectPath(createdId), { state: { firstMessage: message } })
+    },
+    onError: (e) =>
+      setStartError(
+        e instanceof ApiError ? e.message : '서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      ),
+  })
 
   return (
     <div className={styles.page}>
       <AppSidebar
-        consultations={consultations}
-        activeId={activeId}
-        userName="testUser"
-        onNewConsultation={startNewConsultation}
-        onSelect={selectConsultation}
-        // 세션(토큰) 저장은 API 연결 때 붙이고, 지금은 로그인 화면으로만 보낸다
-        onLogout={() => navigate('/login', { replace: true })}
+        activeId={projectId ?? undefined}
+        onNewConsultation={() => navigate('/')}
+        onSelect={(id) => navigate(projectPath(id))}
+        onLogout={logout}
       />
-      {consultations.map((c) => (
-        <ConsultationWorkspace
-          key={c.id}
-          active={c.id === activeId}
-          status={c.status}
-          initial={c.initial}
-          onStarted={() => setStartedIds((prev) => [...prev, c.id])}
-          onNameChange={(name) => update(c.id, { name })}
-          onDesignComplete={() => {
-            update(c.id, { status: 'done' })
-            // 보고 있는 의뢰일 때만 결과 화면으로 이동. API 연결 전이라 목업 결과(a-shop)를 보여준다
-            if (c.id === activeId) openResult()
+      {param === undefined ? (
+        <StartView
+          onStart={(values) => {
+            setStartError(null)
+            create.mutate(values)
           }}
+          pending={create.isPending}
+          error={startError}
         />
-      ))}
+      ) : projectId === null ? (
+        <p role="alert" className={styles.invalid}>
+          잘못된 주소예요. 왼쪽 목록에서 의뢰를 골라 주세요.
+        </p>
+      ) : (
+        // 의뢰가 바뀌면 상담 상태를 처음부터 새로 시작
+        <ConsultationWorkspace key={projectId} projectId={projectId} firstMessage={firstMessage} />
+      )}
     </div>
   )
 }

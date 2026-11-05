@@ -1,6 +1,7 @@
+import type { Engineer } from '@/entities/engineer'
 import { checkCircleIcon, circleEmptyIcon } from '@/shared/ui'
 import { INFO_ITEMS } from '../model/script'
-import type { Answers, Engineer } from '../model/types'
+import type { Answers } from '../model/types'
 import styles from './InfoPanel.module.css'
 
 interface InfoPanelProps {
@@ -18,7 +19,7 @@ export function InfoPanel({ answers, engineer }: InfoPanelProps) {
     {
       label: '담당 엔지니어',
       done: !!engineer,
-      value: engineer && `${engineer.name} · ${engineer.company}`,
+      value: engineer && `${engineer.name} · ${engineer.companyName}`,
     },
   ]
   const doneCount = items.filter((item) => item.done).length
