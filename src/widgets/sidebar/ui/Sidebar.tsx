@@ -1,18 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
-import { NavLink } from 'react-router'
+import { Link, NavLink, useNavigate } from 'react-router'
 import { REQUEST_STATUS_LABEL, requestQueries } from '@/entities/request'
 import { icons, images } from '@/shared/ui'
 
 export function Sidebar() {
+  const navigate = useNavigate()
   const { data: requests = [] } = useQuery(requestQueries.list())
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col gap-3 overflow-hidden rounded-xlarge bg-main-100 p-[30px]">
-      <p className="m-0 text-[28px] leading-none font-bold text-white">Wayco</p>
+      <Link
+        to="/"
+        aria-label="Wayco 홈으로"
+        className="self-start text-[28px] leading-none font-bold text-white no-underline"
+      >
+        Wayco
+      </Link>
 
+      {/* 의뢰 화면(/)은 열릴 때 새 의뢰가 선택된 상태로 시작한다 */}
       <button
         type="button"
-        className="flex w-full items-center gap-2.5 rounded-small border-0 bg-white px-2.5 py-2 text-left text-sm font-medium text-gray-100"
+        onClick={() => navigate('/')}
+        className="flex w-full items-center gap-2.5 rounded-small border-0 bg-white px-2.5 py-2 text-left text-sm font-medium text-gray-100 hover:bg-gray-10"
       >
         <img src={icons.plus} alt="" width={22} height={22} />새 의뢰 시작
       </button>
