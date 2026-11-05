@@ -20,7 +20,10 @@ function aiMessageFor(stepIndex: number, answers: Answers): ChatMessage {
   }
 }
 
-/** 고객 창구 대화 상태 (목업 시나리오). 대화 → 담당 엔지니어 선택 → 제출 전 확인 → 제출 */
+/**
+ * 고객 창구 대화 상태 (목업 시나리오). 대화 → 담당 엔지니어 선택 → 제출 전 확인.
+ * 제출하면 페이지가 내 서비스에 올리고 reset으로 처음 상태로 돌린다
+ */
 export function useCustomerDesk() {
   const [stage, setStage] = useState<DeskStage>('start')
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -86,8 +89,6 @@ export function useCustomerDesk() {
     setStage('chat')
   }
 
-  const submit = () => setStage('submitted')
-
   const reset = useCallback(() => {
     clearTimeout(timer.current)
     setStage('start')
@@ -112,7 +113,6 @@ export function useCustomerDesk() {
     setEngineer,
     editAnswer,
     backToChat,
-    submit,
     reset,
   }
 }

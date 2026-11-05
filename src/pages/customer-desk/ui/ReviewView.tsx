@@ -9,8 +9,6 @@ import styles from './ReviewView.module.css'
 interface ReviewViewProps {
   answers: Answers
   engineer?: Engineer
-  /** 제출을 마쳤으면 더 고칠 수 없다 */
-  submitted: boolean
   onEdit: (field: FieldKey, value: string) => void
   onChangeEngineer: (engineer: Engineer) => void
   onBack: () => void
@@ -20,7 +18,6 @@ interface ReviewViewProps {
 export function ReviewView({
   answers,
   engineer,
-  submitted,
   onEdit,
   onChangeEngineer,
   onBack,
@@ -34,7 +31,6 @@ export function ReviewView({
   const total = REVIEW_FIELDS.length
 
   const startEdit = (field: FieldKey) => {
-    if (submitted) return
     setEditing(field)
     setDraft(answers[field] ?? '')
   }
@@ -55,15 +51,9 @@ export function ReviewView({
   return (
     <section className={styles.view}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>새 서비스 등록 · {submitted ? '제출 완료' : '마지막 단계'}</p>
-        <h1 className={styles.title}>
-          {submitted ? '담당 엔지니어에게 제출했어요' : '제출 전에 확인해 주세요'}
-        </h1>
-        <p className={styles.description}>
-          {submitted
-            ? '검토가 끝나면 내 서비스에서 결과를 확인할 수 있어요'
-            : '고칠 내용이 있으면 답변을 눌러 바로 고칠 수 있어요'}
-        </p>
+        <p className={styles.eyebrow}>새 서비스 등록 · 마지막 단계</p>
+        <h1 className={styles.title}>제출 전에 확인해 주세요</h1>
+        <p className={styles.description}>고칠 내용이 있으면 답변을 눌러 바로 고칠 수 있어요</p>
       </header>
 
       <div className={styles.body}>
@@ -98,34 +88,29 @@ export function ReviewView({
                             <button
                               type="button"
                               className={styles.answer}
-                              disabled={submitted}
                               onClick={() => startEdit(field)}
                             >
                               {value}
                             </button>
-                            {!submitted && (
-                              <button
-                                type="button"
-                                className={styles.editButton}
-                                aria-label={`${label} 고치기`}
-                                onClick={() => startEdit(field)}
-                              >
-                                <img src={editIcon} alt="" width={16} height={16} />
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              className={styles.editButton}
+                              aria-label={`${label} 고치기`}
+                              onClick={() => startEdit(field)}
+                            >
+                              <img src={editIcon} alt="" width={16} height={16} />
+                            </button>
                           </>
                         ) : (
                           <>
                             <span className={styles.unanswered}>아직 답하지 않았어요</span>
-                            {!submitted && (
-                              <button
-                                type="button"
-                                className={styles.addButton}
-                                onClick={() => startEdit(field)}
-                              >
-                                답변 추가
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              className={styles.addButton}
+                              onClick={() => startEdit(field)}
+                            >
+                              답변 추가
+                            </button>
                           </>
                         )}
                       </dd>
@@ -143,7 +128,7 @@ export function ReviewView({
               <div className={styles.statusRow}>
                 <span className={styles.ready}>
                   <img src={checkIcon} alt="" width={14} height={14} />
-                  {submitted ? '제출했어요' : '제출할 준비가 됐어요'}
+                  제출할 준비가 됐어요
                 </span>
                 <span className={styles.count}>
                   {answeredCount} / {total}
@@ -184,32 +169,28 @@ export function ReviewView({
                   ) : (
                     <span className={styles.unanswered}>아직 고르지 않았어요</span>
                   )}
-                  {!submitted && (
-                    <button
-                      type="button"
-                      className={styles.changeButton}
-                      onClick={() => setIsPickingEngineer(true)}
-                    >
-                      {engineer ? '변경' : '선택'}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={styles.changeButton}
+                    onClick={() => setIsPickingEngineer(true)}
+                  >
+                    {engineer ? '변경' : '선택'}
+                  </button>
                 </div>
               </div>
             )}
 
             <div className={styles.actions}>
-              {!submitted && (
-                <button type="button" className={styles.backButton} onClick={onBack}>
-                  이전
-                </button>
-              )}
+              <button type="button" className={styles.backButton} onClick={onBack}>
+                이전
+              </button>
               <button
                 type="button"
                 className={styles.submitButton}
-                disabled={submitted || !engineer || isPickingEngineer}
+                disabled={!engineer || isPickingEngineer}
                 onClick={onSubmit}
               >
-                {submitted ? '제출 완료' : '담당 엔지니어에게 제출'}
+                담당 엔지니어에게 제출
               </button>
             </div>
           </div>

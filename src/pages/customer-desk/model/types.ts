@@ -1,3 +1,5 @@
+import type { CustomerService } from '@/widgets/customer-sidebar'
+
 /** 고객이 답하는 요구사항 항목. 제출 전 확인 화면의 한 줄씩과 1:1로 맞춘다 */
 export type FieldKey =
   | 'concern'
@@ -53,4 +55,12 @@ export type ChatMessage =
       pickEngineer?: boolean
     }
 
-export type DeskStage = 'start' | 'chat' | 'review' | 'submitted'
+export type DeskStage = 'start' | 'chat' | 'review'
+
+/** 제출해 접수된 서비스 하나 (내 서비스 목록 · 진행 상태 화면) */
+export interface ServiceRecord extends CustomerService {
+  engineer: Engineer
+  /** 등록일 (YYYY-MM-DD) */
+  registeredAt: string
+  answers: Answers
+}

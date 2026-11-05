@@ -12,21 +12,33 @@ export interface CustomerService {
 
 interface CustomerSidebarProps {
   services: CustomerService[]
+  /** 보고 있는 서비스 */
+  activeServiceId?: string
   userName: string
   onNewService?: () => void
+  /** 로고 · 고객 창구: 대화 화면으로 */
+  onOpenDesk?: () => void
+  onSelectService?: (id: string) => void
 }
 
-const STATUS_LABEL: Record<CustomerServiceStatus, string> = {
+const SERVICE_STATUS_LABEL: Record<CustomerServiceStatus, string> = {
   submitted: '접수됨',
   analyzed: '분석 완료',
   recommended: '추천 완료',
 }
 
 /** 고객(서비스 담당자)용 사이드바: 새 서비스 등록 · 고객 창구 · 내 서비스 목록 */
-export function CustomerSidebar({ services, userName, onNewService }: CustomerSidebarProps) {
+export function CustomerSidebar({
+  services,
+  activeServiceId,
+  userName,
+  onNewService,
+  onOpenDesk,
+  onSelectService,
+}: CustomerSidebarProps) {
   return (
     <aside className={styles.sidebar}>
-      <Link to="/desk" className={styles.logo} aria-label="Wayco 홈으로">
+      <Link to="/desk" className={styles.logo} aria-label="Wayco 홈으로" onClick={onOpenDesk}>
         <img src={waycoLogo} alt="Wayco" width={106.558} height={30} />
       </Link>
 
@@ -36,7 +48,12 @@ export function CustomerSidebar({ services, userName, onNewService }: CustomerSi
         </button>
         <hr className={styles.divider} />
         <nav aria-label="고객 메뉴">
-          <Link to="/desk" className={styles.navItem} aria-current="page">
+          <Link
+            to="/desk"
+            className={styles.navItem}
+            aria-current={activeServiceId ? undefined : 'page'}
+            onClick={onOpenDesk}
+          >
             <img src={chatIcon} alt="" width={22} height={22} />
             고객 창구
           </Link>
@@ -44,15 +61,22 @@ export function CustomerSidebar({ services, userName, onNewService }: CustomerSi
         <p className={styles.sectionLabel}>내 서비스</p>
         <ul className={styles.list} aria-label="내 서비스">
           {services.map((service) => (
-            <li key={service.id} className={styles.service}>
-              <span className={styles.serviceName}>{service.name}</span>
-              <span
-                className={[styles.status, service.status === 'submitted' && styles.submitted]
-                  .filter(Boolean)
-                  .join(' ')}
+            <li key={service.id}>
+              <button
+                type="button"
+                className={styles.service}
+                aria-current={service.id === activeServiceId ? 'page' : undefined}
+                onClick={() => onSelectService?.(service.id)}
               >
-                {STATUS_LABEL[service.status]}
-              </span>
+                <span className={styles.serviceName}>{service.name}</span>
+                <span
+                  className={[styles.status, service.status === 'submitted' && styles.submitted]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {SERVICE_STATUS_LABEL[service.status]}
+                </span>
+              </button>
             </li>
           ))}
         </ul>

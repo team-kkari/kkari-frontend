@@ -103,9 +103,20 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  width: 100%;
   padding: 0.5rem 0.625rem;
+  border: none;
   border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-white);
+  font: inherit;
   line-height: normal;
+  text-align: left;
+  transition: background-color 0.15s;
+}
+
+.service:hover {
+  background: rgb(255 255 255 / 0.06);
 }
 
 .serviceName {
@@ -130,7 +141,8 @@
 
 .logo:focus-visible,
 .newButton:focus-visible,
-.navItem:focus-visible {
+.navItem:focus-visible,
+.service:focus-visible {
   outline: 0.125rem solid var(--color-main-50);
   outline-offset: 0.125rem;
 }

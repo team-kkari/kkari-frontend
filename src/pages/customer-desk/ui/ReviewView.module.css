@@ -127,12 +127,8 @@
   overflow-wrap: anywhere;
 }
 
-.answer:not(:disabled):hover {
+.answer:hover {
   color: var(--color-main-60);
-}
-
-.answer:disabled {
-  cursor: default;
 }
 
 .editButton {
