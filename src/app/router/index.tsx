@@ -3,6 +3,7 @@ import { ConsultationPage } from '@/pages/consultation'
 import { LoginPage } from '@/pages/login'
 import { RecommendationResultPage } from '@/pages/recommendation-result'
 import { SignUpPage } from '@/pages/signup'
+import { MspProjectsPage } from '@/pages/msp-projects'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,14 @@ const router = createBrowserRouter([
   {
     path: '/requests/:requestId',
     element: <RecommendationResultPage />,
+  },
+  {
+    path: '/msp/projects',
+    element: <MspProjectsPage />,
+  },
+  {
+    path: '/msp/projects/:projectId/:step?',
+    element: <MspProjectsPage />,
   },
 ])
 
