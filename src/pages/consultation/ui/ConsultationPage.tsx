@@ -7,7 +7,7 @@ import { ConsultationWorkspace } from './ConsultationWorkspace'
 import styles from './ConsultationPage.module.css'
 
 const NEW_CONSULTATION_NAME = '새 의뢰'
-/** API 연결 전까지 설계가 끝나면 보여줄 추천 결과 목업 */
+/** API 연결 전까지 완료된 의뢰마다 보여줄 추천 결과 목업 */
 const MOCK_RESULT_REQUEST_ID = 'a-shop'
 
 let consultationSeq = 0
@@ -31,6 +31,18 @@ export function ConsultationPage() {
     setConsultations((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)))
   }
 
+  const openResult = () => navigate(`/requests/${MOCK_RESULT_REQUEST_ID}`)
+
+  // 완료된 의뢰는 대화 기록 대신 추천 결과(분석) 화면으로 바로 보낸다
+  const selectConsultation = (id: string) => {
+    const target = consultations.find((c) => c.id === id)
+    if (target?.status === 'done') {
+      openResult()
+      return
+    }
+    setActiveId(id)
+  }
+
   const startNewConsultation = () => {
     const unstarted = consultations.find(
       (c) => c.status === 'in-progress' && !c.initial && !startedIds.includes(c.id),
@@ -51,7 +63,7 @@ export function ConsultationPage() {
         activeId={activeId}
         userName="testUser"
         onNewConsultation={startNewConsultation}
-        onSelect={setActiveId}
+        onSelect={selectConsultation}
         // 세션(토큰) 저장은 API 연결 때 붙이고, 지금은 로그인 화면으로만 보낸다
         onLogout={() => navigate('/login', { replace: true })}
       />
@@ -66,7 +78,7 @@ export function ConsultationPage() {
           onDesignComplete={() => {
             update(c.id, { status: 'done' })
             // 보고 있는 의뢰일 때만 결과 화면으로 이동. API 연결 전이라 목업 결과(a-shop)를 보여준다
-            if (c.id === activeId) navigate(`/requests/${MOCK_RESULT_REQUEST_ID}`)
+            if (c.id === activeId) openResult()
           }}
         />
       ))}
