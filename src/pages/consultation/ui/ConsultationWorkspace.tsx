@@ -15,8 +15,8 @@ interface ConsultationWorkspaceProps {
   onStarted: () => void
   /** 대화에서 고객사 이름을 알게 됐을 때 */
   onNameChange: (name: string) => void
-  /** [임시] 설계 화면의 끝내기 버튼 */
-  onFinish: () => void
+  /** 아키텍처 설계가 끝났을 때 */
+  onDesignComplete: () => void
 }
 
 /**
@@ -29,7 +29,7 @@ export function ConsultationWorkspace({
   initial,
   onStarted,
   onNameChange,
-  onFinish,
+  onDesignComplete,
 }: ConsultationWorkspaceProps) {
   const consultation = useConsultation(initial)
   const { stage, info } = consultation
@@ -72,7 +72,7 @@ export function ConsultationWorkspace({
             onConfirmDesign={consultation.confirmDesign}
           />
         )}
-        {view === 'designing' && <DesigningView onFinish={onFinish} />}
+        {view === 'designing' && <DesigningView onComplete={onDesignComplete} />}
       </main>
       {view === 'chat' && <InfoPanel info={info} />}
     </div>

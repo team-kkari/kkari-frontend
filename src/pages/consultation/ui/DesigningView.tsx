@@ -1,26 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { checkCircleIcon, circleEmptyIcon, spinnerLargeIcon, spinnerSmallIcon } from '@/shared/ui'
-import { DESIGN_STEPS, DESIGN_STEP_DELAY, TEMP_FINISH_DELAY } from '../model/script'
+import { DESIGN_COMPLETE_DELAY, DESIGN_STEPS, DESIGN_STEP_DELAY } from '../model/script'
 import styles from './DesigningView.module.css'
 
 interface DesigningViewProps {
-  /** [임시] 결과 화면이 생기기 전까지 끝내기 버튼으로 의뢰를 마친다 */
-  onFinish: () => void
+  /** 모든 설계 단계가 끝났을 때 (결과 화면으로 이동) */
+  onComplete: () => void
 }
 
-export function DesigningView({ onFinish }: DesigningViewProps) {
+export function DesigningView({ onComplete }: DesigningViewProps) {
   // 진행 중인 단계 인덱스. 단계 수와 같으면 모두 완료
   const [activeIndex, setActiveIndex] = useState(0)
-  const [showFinish, setShowFinish] = useState(false)
 
-  // [임시] 결과 화면 연결 전까지 5초 뒤 끝내기 버튼을 띄운다
+  // 부모 콜백은 렌더마다 새로 만들어지므로 ref로 최신 값만 참조한다
+  const onCompleteRef = useRef(onComplete)
   useEffect(() => {
-    const timer = window.setTimeout(() => setShowFinish(true), TEMP_FINISH_DELAY)
-    return () => window.clearTimeout(timer)
-  }, [])
+    onCompleteRef.current = onComplete
+  })
 
   useEffect(() => {
-    if (activeIndex >= DESIGN_STEPS.length) return
+    if (activeIndex >= DESIGN_STEPS.length) {
+      // 마지막 단계 완료 표시를 잠깐 보여준 뒤 넘어간다
+      const timer = window.setTimeout(() => onCompleteRef.current(), DESIGN_COMPLETE_DELAY)
+      return () => window.clearTimeout(timer)
+    }
     const timer = window.setTimeout(() => setActiveIndex((i) => i + 1), DESIGN_STEP_DELAY)
     return () => window.clearTimeout(timer)
   }, [activeIndex])
@@ -60,16 +63,6 @@ export function DesigningView({ onFinish }: DesigningViewProps) {
           )
         })}
       </ol>
-
-      {/* [임시] 결과 화면이 생기면 이 블록을 지운다 */}
-      {showFinish && (
-        <div className={styles.tempFinish}>
-          <button type="button" className={styles.finishButton} onClick={onFinish}>
-            끝내기
-          </button>
-          <p className={styles.tempNote}>임시 버튼이에요 · 결과 화면 연결 전까지만 사용해요</p>
-        </div>
-      )}
     </section>
   )
 }

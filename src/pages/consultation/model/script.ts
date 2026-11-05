@@ -126,5 +126,5 @@ export const DESIGN_STEPS: { label: string; doneMeta?: string }[] = [
 /** 목업 AI 응답 지연 (ms) */
 export const AI_DELAY = 1500
 export const DESIGN_STEP_DELAY = 1500
-/** [임시] 설계 화면에서 끝내기 버튼이 뜨기까지 시간 (ms) */
-export const TEMP_FINISH_DELAY = 5000
+/** 마지막 단계까지 끝난 뒤 결과 화면으로 넘어가기 전 잠깐 보여주는 시간 (ms) */
+export const DESIGN_COMPLETE_DELAY = 800

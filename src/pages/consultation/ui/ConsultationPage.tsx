@@ -7,6 +7,8 @@ import { ConsultationWorkspace } from './ConsultationWorkspace'
 import styles from './ConsultationPage.module.css'
 
 const NEW_CONSULTATION_NAME = '새 의뢰'
+/** API 연결 전까지 설계가 끝나면 보여줄 추천 결과 목업 */
+const MOCK_RESULT_REQUEST_ID = 'a-shop'
 
 let consultationSeq = 0
 const createConsultation = (): Consultation => ({
@@ -61,7 +63,11 @@ export function ConsultationPage() {
           initial={c.initial}
           onStarted={() => setStartedIds((prev) => [...prev, c.id])}
           onNameChange={(name) => update(c.id, { name })}
-          onFinish={() => update(c.id, { status: 'done' })}
+          onDesignComplete={() => {
+            update(c.id, { status: 'done' })
+            // 보고 있는 의뢰일 때만 결과 화면으로 이동. API 연결 전이라 목업 결과(a-shop)를 보여준다
+            if (c.id === activeId) navigate(`/requests/${MOCK_RESULT_REQUEST_ID}`)
+          }}
         />
       ))}
     </div>
