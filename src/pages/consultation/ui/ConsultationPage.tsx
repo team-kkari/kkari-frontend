@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { createProject, projectPath, projectQueries } from '@/entities/project'
 import { useLogout } from '@/features/logout'
-import { ApiError, useSessionStore } from '@/shared/api'
+import { ApiError } from '@/shared/api'
 import { AppSidebar } from '@/widgets/app-sidebar'
 import { ConsultationWorkspace } from './ConsultationWorkspace'
 import { StartView, type StartValues } from './StartView'
@@ -14,7 +14,6 @@ export function ConsultationPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const logout = useLogout()
-  const role = useSessionStore((state) => state.session?.role)
   const { projectId: param } = useParams()
   const location = useLocation()
   const firstMessage = (location.state as { firstMessage?: string } | null)?.firstMessage
@@ -39,7 +38,6 @@ export function ConsultationPage() {
     <div className={styles.page}>
       <AppSidebar
         activeId={projectId ?? undefined}
-        userName={role === 'CUSTOMER' ? '고객' : 'MSP 엔지니어'}
         onNewConsultation={() => navigate('/')}
         onSelect={(id) => navigate(projectPath(id))}
         onLogout={logout}

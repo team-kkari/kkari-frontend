@@ -1,3 +1,6 @@
+import type { ProjectTerraform } from '@/entities/project'
+import { formatDate } from '@/shared/lib'
+import { formatFileSize } from '../lib/format'
 import type { ChoiceCard, InfoKey } from './types'
 
 /** 오른쪽 패널·요약 카드에 보이는 수집 항목 */
@@ -28,6 +31,10 @@ export const INFRA_INTRO =
 export const TERRAFORM_INTRO =
   'AWS 분석을 마쳤어요. Terraform state 파일이 있으면 함께 올려 주세요.'
 
+/** 이미 Terraform state 파일이 올라가 있는 프로젝트에서 AWS 분석을 마쳤을 때 */
+export const TERRAFORM_UPLOADED_INTRO =
+  'AWS 분석을 마쳤어요. 이미 올려 둔 Terraform state 파일이 있어요.'
+
 export const TERRAFORM_CHOICE: Omit<ChoiceCard, 'selectedId'> = {
   question: 'Terraform state 파일도 올릴까요? (선택)',
   defaultId: 'skip',
@@ -45,5 +52,43 @@ export const TERRAFORM_CHOICE: Omit<ChoiceCard, 'selectedId'> = {
     },
   ],
 }
+
+/** 올려 둔 파일의 이름·크기·올린 날을 한 줄로. 서버가 모르는 값(이전 업로드)은 뺀다 */
+function describeTerraform(terraform?: ProjectTerraform | null) {
+  const uploadedDate = formatDate(terraform?.uploadedAt)
+  const parts = [
+    terraform?.fileName,
+    typeof terraform?.size === 'number' ? formatFileSize(terraform.size) : undefined,
+    uploadedDate !== '-' ? `${uploadedDate} 올림` : undefined,
+  ].filter(Boolean)
+  return parts.length > 0 ? parts.join(' · ') : '이전에 올린 파일이에요'
+}
+
+/** 이미 올려 둔 Terraform 파일이 있을 때 보여 주는 선택 카드. 기본은 올려 둔 파일을 그대로 쓰는 것이다 */
+export function terraformUploadedChoice(
+  terraform?: ProjectTerraform | null,
+): Omit<ChoiceCard, 'selectedId'> {
+  return {
+    question: '올려 둔 Terraform 파일을 어떻게 할까요?',
+    defaultId: 'keep',
+    options: [
+      {
+        id: 'keep',
+        label: '올려 둔 파일 그대로 사용',
+        description: describeTerraform(terraform),
+      },
+      {
+        id: 'terraform',
+        label: '다른 파일로 교체',
+        description: '새 파일을 올리면 이전 파일은 대체돼요',
+        followUp: { message: 'Terraform state 파일을 올려 주세요.', connect: 'terraform' },
+      },
+    ],
+  }
+}
+
+/** 마지막 설계 작업이 실패한 채로 상담에 다시 들어왔을 때 확인 카드 앞에 붙이는 안내 */
+export const designFailedMessage = (reason?: string | null) =>
+  `이전 설계 요청이 실패했어요${reason ? ` (${reason})` : ''}. 아래에서 다시 설계를 시작할 수 있어요.`
 
 export const CLOSING_MESSAGE = '이 내용으로 아키텍처를 설계할까요?'

@@ -109,12 +109,18 @@ export interface InfraSnapshot {
 export interface TerraformInfra {
   resources: Resources
   missing?: Missing[]
+  /** 오프셋이 있을 수도, 없을 수도 있어 parseServerDate/formatDate 로 다룬다 */
   uploadedAt: string
+  /** 업로드한 파일 이름. 새 백엔드부터 있고, 이전에 올린 데이터는 비어 있다 */
+  fileName?: string | null
+  /** 업로드한 파일 크기(byte). fileName 과 같다 */
+  size?: number | null
 }
 
 /** 백엔드 DiscoveryResponse. 마지막으로 성공한 분석 결과 */
 export interface DiscoveryResponse {
   jobId: number
+  /** 오프셋이 있을 수도, 없을 수도 있어 parseServerDate/formatDate 로 다룬다 */
   analyzedAt: string
   result: InfraSnapshot
   /** Terraform state 를 올리지 않았으면 비어 있다 */

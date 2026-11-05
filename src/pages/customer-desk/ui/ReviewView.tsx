@@ -1,7 +1,9 @@
 import { useState, type KeyboardEvent } from 'react'
+import { ANSWER_VALUE_MAX_LENGTH } from '@/entities/customer-service'
+import type { Engineer } from '@/entities/engineer'
 import { checkIcon, editIcon, infoNoticeIcon } from '@/shared/ui'
 import { REVIEW_FIELDS, REVIEW_GROUPS } from '../model/script'
-import type { Answers, Engineer, FieldKey } from '../model/types'
+import type { Answers, FieldKey } from '../model/types'
 import { EngineerPicker } from './EngineerPicker'
 import { EngineerProfile } from './EngineerProfile'
 import styles from './ReviewView.module.css'
@@ -13,6 +15,10 @@ interface ReviewViewProps {
   onChangeEngineer: (engineer: Engineer) => void
   onBack: () => void
   onSubmit: () => void
+  /** 서버에 제출하는 중 */
+  isSubmitting?: boolean
+  /** 제출에 실패했을 때 보여줄 서버 메시지. 같은 버튼으로 다시 시도한다 */
+  submitError?: string
 }
 
 export function ReviewView({
@@ -22,6 +28,8 @@ export function ReviewView({
   onChangeEngineer,
   onBack,
   onSubmit,
+  isSubmitting = false,
+  submitError,
 }: ReviewViewProps) {
   const [editing, setEditing] = useState<FieldKey>()
   const [draft, setDraft] = useState('')
@@ -78,6 +86,7 @@ export function ReviewView({
                             className={styles.editInput}
                             value={draft}
                             aria-label={`${label} 고치기`}
+                            maxLength={ANSWER_VALUE_MAX_LENGTH}
                             autoFocus
                             onChange={(event) => setDraft(event.target.value)}
                             onKeyDown={handleKeyDown}
@@ -180,17 +189,32 @@ export function ReviewView({
               </div>
             )}
 
+            {submitError && (
+              <p role="alert" className={styles.submitError}>
+                {submitError}
+              </p>
+            )}
+
             <div className={styles.actions}>
-              <button type="button" className={styles.backButton} onClick={onBack}>
+              <button
+                type="button"
+                className={styles.backButton}
+                disabled={isSubmitting}
+                onClick={onBack}
+              >
                 이전
               </button>
               <button
                 type="button"
                 className={styles.submitButton}
-                disabled={!engineer || isPickingEngineer}
+                disabled={!engineer || isPickingEngineer || isSubmitting}
                 onClick={onSubmit}
               >
-                담당 엔지니어에게 제출
+                {isSubmitting
+                  ? '제출하는 중…'
+                  : submitError
+                    ? '다시 제출'
+                    : '담당 엔지니어에게 제출'}
               </button>
             </div>
           </div>

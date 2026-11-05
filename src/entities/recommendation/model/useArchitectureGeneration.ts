@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { ApiError, jobQueries, requestJson } from '@/shared/api'
 import { recommendationQueries } from '../api/queries'
 import type { RecommendationResult } from './types'
@@ -22,18 +22,31 @@ function toMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : '서버에 연결하지 못했어요.'
 }
 
+interface ArchitectureGenerationOptions {
+  /**
+   * 이미 대기·실행 중인 설계 작업의 ID (GET /architectures 의 latestJob).
+   * 있으면 start 가 새 작업을 만들지 않고 이 작업을 이어서 폴링한다. retry 는 새 작업을 시작한다.
+   */
+  resumeJobId?: number
+}
+
 /**
  * 추천 아키텍처 생성: 시작(POST) → 작업 상태 폴링(jobQueries.detail) → 결과 조회(GET).
  * 이미 대기·실행 중인 생성 작업이 있으면 백엔드가 그 작업 ID 를 돌려주므로 start 를 다시 불러도 안전하다.
  */
-export function useArchitectureGeneration(projectId: number) {
+export function useArchitectureGeneration(
+  projectId: number,
+  { resumeJobId }: ArchitectureGenerationOptions = {},
+) {
   const startMutation = useMutation({
     mutationFn: (count: number) =>
       requestJson<{ jobId: number }>(`/v1/projects/${projectId}/architectures`, 'POST', { count }),
   })
   const { mutate, reset } = startMutation
+  // 이어서 보던 작업이 실패해 다시 시도하면 새 작업으로 넘어가야 해서 상태로 둔다
+  const [resumedJobId, setResumedJobId] = useState(resumeJobId)
 
-  const jobId = startMutation.data?.jobId
+  const jobId = startMutation.data?.jobId ?? resumedJobId
   const job = useQuery({ ...jobQueries.detail(jobId ?? 0), enabled: jobId !== undefined })
   const succeeded = job.data?.status === 'SUCCEEDED'
 
@@ -69,7 +82,12 @@ export function useArchitectureGeneration(projectId: number) {
   }
 
   const { refetch: refetchResult } = result
-  const start = useCallback((count: number = DEFAULT_COUNT) => mutate(count), [mutate])
+  const start = useCallback(
+    (count: number = DEFAULT_COUNT) => {
+      if (resumedJobId === undefined) mutate(count)
+    },
+    [mutate, resumedJobId],
+  )
 
   /** 실패한 단계부터 다시 한다. 결과 조회만 실패했다면 생성은 다시 하지 않는다 */
   const retry = useCallback(() => {
@@ -77,6 +95,7 @@ export function useArchitectureGeneration(projectId: number) {
       void refetchResult()
       return
     }
+    setResumedJobId(undefined)
     reset()
     mutate(DEFAULT_COUNT)
   }, [succeeded, refetchResult, reset, mutate])

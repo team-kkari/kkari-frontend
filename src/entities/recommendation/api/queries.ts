@@ -1,7 +1,8 @@
 import { queryOptions } from '@tanstack/react-query'
 import { ApiError, request } from '@/shared/api'
-import type { ArchitectureResponseDto } from './dto'
+import type { LatestArchitectureJob, RecommendationResult } from '../model/types'
 import { toRecommendationResult } from './mapper'
+import { ArchitectureNotFoundError, requestArchitectures } from './request'
 
 /** 백엔드 Priority enum → 화면 표시 */
 const PRIORITY_LABEL: Record<string, string> = {
@@ -15,11 +16,24 @@ const PRIORITY_LABEL: Record<string, string> = {
 export const isArchitectureNotFound = (error: unknown) =>
   error instanceof ApiError && error.code === 'AR002'
 
+/** 설계 작업이 대기·실행 중인지 */
+export const isArchitectureJobActive = (job: LatestArchitectureJob | null | undefined) =>
+  job?.status === 'QUEUED' || job?.status === 'RUNNING'
+
+/**
+ * 추천 결과 조회의 가장 최근 설계 작업. 결과가 있으면 응답의 latestJob, 아직 없으면(AR002) 오류에 담긴 latestJob.
+ * 새 필드가 없는 옛 서버이거나 설계를 시작한 적이 없으면 null
+ */
+export function latestJobOf(
+  data: RecommendationResult | undefined,
+  error: unknown,
+): LatestArchitectureJob | null {
+  if (error instanceof ArchitectureNotFoundError) return error.latestJob
+  return data?.latestJob ?? null
+}
+
 const fetchResult = async (projectId: number) =>
-  toRecommendationResult(
-    await request<ArchitectureResponseDto>(`/v1/projects/${projectId}/architectures`),
-    projectId,
-  )
+  toRecommendationResult(await requestArchitectures(projectId), projectId)
 
 export const recommendationQueries = {
   all: () => ['recommendations'] as const,
@@ -33,6 +47,8 @@ export const recommendationQueries = {
       queryFn: () => fetchResult(projectId),
       enabled: Number.isInteger(projectId),
       retry: false,
+      // 진행 중인 설계 작업(latestJob)으로 상담 화면을 열기 때문에, 다시 열 때 낡은 값을 쓰지 않게 캐시를 남기지 않는다
+      gcTime: 0,
     }),
   /** 마지막으로 성공한 추천 아키텍처. 생성 전이면 AR002 오류 */
   result: (projectId: number) =>

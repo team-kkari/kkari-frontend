@@ -1,12 +1,34 @@
 import { ApiError } from '@/shared/api'
-import type { Recommendation, RecommendationResult, Scores } from '../model/types'
-import type { ArchitectureDto, ArchitectureResponseDto, RecommendationResponseDto } from './dto'
+import type {
+  LatestArchitectureJob,
+  Recommendation,
+  RecommendationResult,
+  Scores,
+} from '../model/types'
+import type {
+  ArchitectureDto,
+  ArchitectureResponseDto,
+  LatestJobDto,
+  RecommendationResponseDto,
+} from './dto'
 
 /** AI 순위 생성에 실패해 점수가 없을 때 쓰는 값 */
 const NO_SCORES: Scores = { cost: 0, performance: 0, reliability: 0, operations: 0, migration: 0 }
 
 /** AI 순위 생성에 실패해 이유가 비었을 때 보여 줄 문장 (AI 서버가 월 비용 낮은 순으로 정렬한다) */
 const NO_RANK_REASON = 'AI 순위를 매기지 못해 월 비용이 낮은 순으로 정렬했어요.'
+
+const JOB_STATUSES: readonly string[] = ['QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED']
+
+/** latestJob 을 화면용으로 바꾼다. 없거나(옛 서버·작업 기록 없음) 모양이 틀리면 null */
+export function toLatestJob(dto: LatestJobDto | null | undefined): LatestArchitectureJob | null {
+  if (!dto || typeof dto.jobId !== 'number' || !JOB_STATUSES.includes(dto.status)) return null
+  return {
+    jobId: dto.jobId,
+    status: dto.status as LatestArchitectureJob['status'],
+    failureReason: dto.failureReason ?? null,
+  }
+}
 
 function isResponseDto(value: unknown): value is RecommendationResponseDto {
   return (
@@ -74,6 +96,7 @@ export function toRecommendationResult(
     projectId,
     jobId: response.jobId,
     generatedAt: response.generatedAt,
+    latestJob: toLatestJob(response.latestJob),
     summary: dto.overall ?? '',
     currentMonthlyUsd,
     recommendations: [...dto.architectures]

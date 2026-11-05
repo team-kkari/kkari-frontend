@@ -91,3 +91,36 @@
   color: var(--color-gray-50);
   overflow-wrap: anywhere;
 }
+
+.missing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-gray-10);
+}
+
+.missingTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-50);
+}
+
+.missingList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  line-height: normal;
+  color: var(--color-gray-50);
+}
+
+.missingList li {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  background: var(--color-gray-10);
+}

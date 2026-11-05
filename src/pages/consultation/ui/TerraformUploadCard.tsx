@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 import { TERRAFORM_ACCEPT, useUploadTerraform, validateTerraformFile } from '@/entities/analysis'
 import { ApiError } from '@/shared/api'
 import { closeIcon, infoCircleIcon, uploadIcon } from '@/shared/ui'
+import { formatFileSize } from '../lib/format'
 import card from './ActionCard.module.css'
 import styles from './TerraformUploadCard.module.css'
 
@@ -15,12 +16,6 @@ function errorMessage(error: unknown) {
   return error.status === TOO_LARGE_STATUS
     ? '파일이 서버가 받을 수 있는 크기를 넘었어요. 5MB 이하 파일을 올려 주세요.'
     : error.message
-}
-
-function formatSize(bytes: number) {
-  if (bytes < 1024) return `${bytes}B`
-  if (bytes < 1024 ** 2) return `${Math.round(bytes / 1024)}KB`
-  return `${Math.round(bytes / 1024 ** 2)}MB`
 }
 
 function extensionOf(name: string) {
@@ -115,7 +110,7 @@ export function TerraformUploadCard({
             <span className={styles.thumb}>{extensionOf(file.name)}</span>
             <div className={styles.fileText}>
               <span className={styles.fileName}>{file.name}</span>
-              <span className={styles.fileSize}>{formatSize(file.size)}</span>
+              <span className={styles.fileSize}>{formatFileSize(file.size)}</span>
             </div>
           </div>
           {!done && (

@@ -13,7 +13,20 @@ export interface ProjectSummary {
   stage: ProjectStage
   /** 분석 전에는 값이 없을 수 있다 */
   monthlyCost?: number | null
+  /** 오프셋이 있을 수도, 없을 수도 있어 parseServerDate/formatDate 로 다룬다 */
   updatedAt: string
+}
+
+/**
+ * 프로젝트에 올라가 있는 Terraform 파일 정보. 백엔드 ProjectDetailResponse.terraform 의 메타데이터.
+ * 새 백엔드부터 있는 필드라 옛 서버에서는 통째로 없고, 이전에 올린 데이터는 파일명·크기가 비어 있을 수 있다
+ */
+export interface ProjectTerraform {
+  fileName?: string | null
+  /** byte */
+  size?: number | null
+  /** 오프셋이 있을 수도, 없을 수도 있어 parseServerDate/formatDate 로 다룬다 */
+  uploadedAt?: string | null
 }
 
 /** 프로젝트 상세. 직접 만든 프로젝트는 serviceName·answers 가 비어 있다. 백엔드 ProjectDetailResponse */
@@ -25,6 +38,11 @@ export interface ProjectDetail {
   answers?: Record<string, string> | null
   stage: ProjectStage
   awsConnectionStatus: AwsConnectionStatus
+  /** Terraform 를 올렸는지. 새 백엔드부터 있고, 없으면(옛 서버) 모르는 것이다 */
+  terraformUploaded?: boolean
+  /** 올린 Terraform 파일 정보. 올리지 않았으면 null, 옛 서버에서는 없다 */
+  terraform?: ProjectTerraform | null
+  /** 오프셋이 있을 수도, 없을 수도 있어 parseServerDate/formatDate 로 다룬다 */
   createdAt: string
   updatedAt: string
 }

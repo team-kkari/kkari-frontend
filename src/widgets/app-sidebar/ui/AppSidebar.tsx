@@ -1,13 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { PROJECT_STAGE_LABEL, projectQueries } from '@/entities/project'
+import { userQueries } from '@/entities/user'
+import { useSessionStore } from '@/shared/api'
 import { defaultAvatar, logoutIcon, plusIcon, waycoLogo } from '@/shared/ui'
 import styles from './AppSidebar.module.css'
 
 interface AppSidebarProps {
   /** 지금 보고 있는 프로젝트의 projectId */
   activeId?: number
-  userName: string
+  /**
+   * 내 정보(GET /v1/users/me)를 불러오기 전이나 불러오지 못했을 때 보여줄 이름.
+   * 비우면 역할에 맞는 기본 문구('MSP 엔지니어', '고객')를 쓴다
+   */
+  userName?: string
   onNewConsultation?: () => void
   onSelect?: (projectId: number) => void
   onLogout?: () => void
@@ -21,6 +27,11 @@ export function AppSidebar({
   onLogout,
 }: AppSidebarProps) {
   const { data: projects, isPending, isError, refetch } = useQuery(projectQueries.list())
+  // 아직 이 API 가 없는 서버에서는 실패하므로, 이름이 없으면 대체 문구로 화면을 유지한다
+  const me = useQuery(userQueries.me())
+  const role = useSessionStore((state) => state.session?.role)
+  const displayName =
+    me.data?.name?.trim() || userName || (role === 'CUSTOMER' ? '고객' : 'MSP 엔지니어')
 
   return (
     <aside className={styles.sidebar}>
@@ -83,7 +94,7 @@ export function AppSidebar({
       </div>
       <div className={styles.user}>
         <img className={styles.avatar} src={defaultAvatar} alt="" width={30} height={30} />
-        <span className={styles.userName}>{userName}</span>
+        <span className={styles.userName}>{displayName}</span>
         <button
           type="button"
           className={styles.logoutButton}

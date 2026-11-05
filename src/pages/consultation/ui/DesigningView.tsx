@@ -10,6 +10,8 @@ const COMPLETE_DELAY = 800
 
 interface DesigningViewProps {
   projectId: number
+  /** 이미 진행 중인 설계 작업. 있으면 새로 시작하지 않고 그 작업을 이어서 보여준다 */
+  resumeJobId?: number
   /** 설계가 끝나고 결과를 받아왔을 때 (결과 화면으로 이동) */
   onDone: () => void
 }
@@ -37,9 +39,11 @@ function activeIndexOf(phase: GenerationPhase): number {
   }
 }
 
-export function DesigningView({ projectId, onDone }: DesigningViewProps) {
+export function DesigningView({ projectId, resumeJobId, onDone }: DesigningViewProps) {
   const queryClient = useQueryClient()
-  const { phase, error, start, retry } = useArchitectureGeneration(projectId)
+  const { phase, error, start, retry } = useArchitectureGeneration(projectId, {
+    resumeJobId,
+  })
 
   // 부모 콜백은 렌더마다 새로 만들어지므로 ref로 최신 값만 참조한다
   const onDoneRef = useRef(onDone)
@@ -47,7 +51,8 @@ export function DesigningView({ projectId, onDone }: DesigningViewProps) {
     onDoneRef.current = onDone
   })
 
-  // 화면이 뜨면 바로 생성을 시작한다. 이미 진행 중인 작업이 있으면 백엔드가 그 작업을 이어서 알려 준다
+  // 화면이 뜨면 바로 생성을 시작한다. 이어서 볼 작업(resumeJobId)이 있으면 새로 시작하지 않는다
+  // (모르고 시작해도 대기·실행 중인 작업이 있으면 백엔드가 그 작업을 알려 준다)
   const startedRef = useRef(false)
   useEffect(() => {
     if (startedRef.current) return

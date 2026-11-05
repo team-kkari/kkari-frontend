@@ -2,7 +2,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { projectQueries, projectResultPath, type ProjectDetail } from '@/entities/project'
-import { recommendationQueries } from '@/entities/recommendation'
+import {
+  latestJobOf,
+  recommendationQueries,
+  type LatestArchitectureJob,
+} from '@/entities/recommendation'
 import { useConsultation } from '../model/useConsultation'
 import { ChatView } from './ChatView'
 import { DesigningView } from './DesigningView'
@@ -43,19 +47,28 @@ export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationW
   if (project.data.stage === 'RECOMMENDED' || existingResult.isSuccess) {
     return <Navigate to={projectResultPath(projectId)} replace />
   }
-  return <ConsultationRoom project={project.data} firstMessage={firstMessage} />
+  return (
+    <ConsultationRoom
+      project={project.data}
+      firstMessage={firstMessage}
+      // 아직 추천 결과가 없을 때(AR002)도 가장 최근 설계 작업이 함께 온다. 방이 열릴 때 한 번만 본다
+      designJob={latestJobOf(existingResult.data, existingResult.error)}
+    />
+  )
 }
 
 function ConsultationRoom({
   project,
   firstMessage,
+  designJob,
 }: {
   project: ProjectDetail
   firstMessage?: string
+  designJob: LatestArchitectureJob | null
 }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const consultation = useConsultation({ project, firstMessage })
+  const consultation = useConsultation({ project, firstMessage, designJob })
 
   const handleDesignDone = () => {
     void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
@@ -68,7 +81,11 @@ function ConsultationRoom({
     <div className={styles.workspace}>
       <main className={styles.main}>
         {consultation.designing ? (
-          <DesigningView projectId={project.projectId} onDone={handleDesignDone} />
+          <DesigningView
+            projectId={project.projectId}
+            resumeJobId={consultation.resumeJobId}
+            onDone={handleDesignDone}
+          />
         ) : (
           <ChatView
             title={project.companyName}
@@ -87,7 +104,9 @@ function ConsultationRoom({
           />
         )}
       </main>
-      {!consultation.designing && <InfoPanel info={consultation.info} />}
+      {!consultation.designing && (
+        <InfoPanel info={consultation.info} missing={consultation.missingLabels} />
+      )}
     </div>
   )
 }

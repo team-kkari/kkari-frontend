@@ -10,7 +10,7 @@ import {
 } from '@/entities/recommendation'
 import { CompareModal } from '@/features/compare-recommendations'
 import { useLogout } from '@/features/logout'
-import { ApiError, useSessionStore } from '@/shared/api'
+import { ApiError } from '@/shared/api'
 import { icons } from '@/shared/ui'
 import { AppSidebar } from '@/widgets/app-sidebar'
 import { ArchitectureCanvas } from '@/widgets/architecture-canvas'
@@ -24,13 +24,11 @@ export function RecommendationResultPage() {
   const projectId = /^\d+$/.test(param) ? Number(param) : null
   const navigate = useNavigate()
   const logout = useLogout()
-  const role = useSessionStore((state) => state.session?.role)
 
   return (
     <div className="flex h-screen min-w-[1280px] gap-[30px] bg-canvas p-5">
       <AppSidebar
         activeId={projectId ?? undefined}
-        userName={role === 'CUSTOMER' ? '고객' : 'MSP 엔지니어'}
         onNewConsultation={() => navigate('/')}
         onSelect={(id) => navigate(projectPath(id))}
         onLogout={logout}

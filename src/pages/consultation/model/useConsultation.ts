@@ -11,8 +11,19 @@ import {
   type SendChatResponse,
 } from '@/entities/chat'
 import { projectQueries, type ProjectDetail } from '@/entities/project'
+import { isArchitectureJobActive, type LatestArchitectureJob } from '@/entities/recommendation'
 import { ApiError } from '@/shared/api'
-import { CLOSING_MESSAGE, INFRA_INTRO, TERRAFORM_CHOICE, TERRAFORM_INTRO } from './script'
+import { formatBudget, lacksBudgetCurrency } from '../lib/format'
+import { missingLabelsOf } from '../lib/missing-fields'
+import {
+  CLOSING_MESSAGE,
+  designFailedMessage,
+  INFRA_INTRO,
+  TERRAFORM_CHOICE,
+  TERRAFORM_INTRO,
+  TERRAFORM_UPLOADED_INTRO,
+  terraformUploadedChoice,
+} from './script'
 import type { ChatMessage, CollectedInfo, ConnectResult } from './types'
 
 type AiMessage = Extract<ChatMessage, { role: 'ai' }>
@@ -50,25 +61,33 @@ function mergeResponse(prev: ChatState | undefined, res: SendChatResponse): Chat
   }
 }
 
-function formatBudget(amount?: number | null, currency?: string | null) {
-  if (amount === undefined || amount === null) return undefined
-  if (amount === 0) return '예산 제한 없음'
-  return `${amount.toLocaleString('ko-KR')} ${currency ?? ''}`.trim()
-}
+/** 백엔드가 고객사명으로 받아 주는 최대 길이 (공백 제외) */
+const COMPANY_NAME_MAX_LENGTH = 100
 
 interface UseConsultationOptions {
   project: ProjectDetail
   /** 시작 화면에서 입력한 첫 메시지. 대화 기록이 비어 있을 때만 보낸다 */
   firstMessage?: string
+  /**
+   * 상담에 들어올 때 서버가 알려 준 가장 최근 설계 작업. 진행 중이면 설계 화면으로 바로 이어 가고,
+   * 실패했으면 확인 카드 앞에 안내를 붙인다. 열릴 때 한 번만 본다
+   */
+  designJob?: LatestArchitectureJob | null
 }
 
 /** 프로젝트 하나의 상담 상태. 대화는 서버가 기록하고, 인프라 연결·설계 확인 카드는 화면에서만 만든다 */
-export function useConsultation({ project, firstMessage }: UseConsultationOptions) {
+export function useConsultation({ project, firstMessage, designJob }: UseConsultationOptions) {
   const { projectId } = project
   const queryClient = useQueryClient()
   const history = useQuery(chatQueries.history(projectId))
   const [cards, setCards] = useState<ChatMessage[]>([])
-  const [designing, setDesigning] = useState(false)
+  // 이미 진행 중인 설계 작업이 있으면 새로 시작하지 않고 그 작업을 이어서 본다
+  const [resumeJobId] = useState(() =>
+    isArchitectureJobActive(designJob) ? designJob?.jobId : undefined,
+  )
+  const [designing, setDesigning] = useState(resumeJobId !== undefined)
+  // 마지막 설계 작업이 실패한 채로 열렸으면 그 사유 (진행 중이 아닐 때만 의미가 있다)
+  const [failedDesign] = useState(() => (designJob?.status === 'FAILED' ? designJob : null))
   const [cardError, setCardError] = useState<string | null>(null)
   const [awsDone, setAwsDone] = useState(false)
   const [terraformDone, setTerraformDone] = useState(false)
@@ -77,6 +96,8 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
   const cardsStarted = useRef(false)
   const chatStarted = useRef(false)
   const lastConfirmId = useRef<string | null>(null)
+  // 서버가 고객사명으로 알고 있는 이름. 상담 중 바뀌면 목록·제목을 다시 불러온다
+  const knownCompanyName = useRef(project.companyName)
 
   const send = useMutation({
     mutationFn: (content?: string) => sendChatMessage(projectId, content),
@@ -84,6 +105,16 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
       queryClient.setQueryData(chatQueries.history(projectId).queryKey, (prev) =>
         mergeResponse(prev, res),
       )
+      // 백엔드가 profile.companyName 을 프로젝트 고객사명에 반영한다. 이름이 새로 바뀐 때만 사이드바 목록·제목을 갱신한다
+      const companyName = res.profile?.companyName?.trim()
+      if (
+        companyName &&
+        companyName.length <= COMPANY_NAME_MAX_LENGTH &&
+        companyName !== knownCompanyName.current
+      ) {
+        knownCompanyName.current = companyName
+        void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
+      }
     },
     // 사용자 메시지는 저장됐는데 AI 응답만 실패했을 수 있어서 서버 기록으로 맞춘다
     onError: () =>
@@ -133,12 +164,16 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
       queryClient.getQueryData(chatQueries.history(projectId).queryKey)?.messages.length ?? 0,
     )
     const analyzed = project.stage !== 'RECEIVED'
+    // 이전 설계 요청이 실패한 채로 다시 열었으면 확인 카드 앞에 사유를 알려 준다
+    const failedNotice: ChatMessage[] = failedDesign
+      ? [{ id: nextLocalId(), role: 'ai', text: designFailedMessage(failedDesign.failureReason) }]
+      : []
     setCards(
       analyzed
-        ? [{ id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} }]
+        ? [...failedNotice, { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} }]
         : [{ id: nextLocalId(), role: 'ai', text: INFRA_INTRO, connect: { kind: 'aws' } }],
     )
-  }, [ready, send.isPending, project.stage, queryClient, projectId])
+  }, [ready, send.isPending, project.stage, failedDesign, queryClient, projectId])
 
   const updateCard = (messageId: string, update: (m: AiMessage) => AiMessage) => {
     setCards((prev) => prev.map((m) => (m.id === messageId && m.role === 'ai' ? update(m) : m)))
@@ -182,9 +217,16 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
     if (kind === 'aws') {
       setAwsDone(true)
+      // 이미 올려 둔 Terraform 파일이 있으면 그 파일 정보를 보여 주고 그대로 쓸지 묻는다
+      const uploaded = project.terraformUploaded === true
       setCards((prev) => [
         ...prev,
-        { id: nextLocalId(), role: 'ai', text: TERRAFORM_INTRO, choice: TERRAFORM_CHOICE },
+        {
+          id: nextLocalId(),
+          role: 'ai',
+          text: uploaded ? TERRAFORM_UPLOADED_INTRO : TERRAFORM_INTRO,
+          choice: uploaded ? terraformUploadedChoice(project.terraform) : TERRAFORM_CHOICE,
+        },
       ])
       return
     }
@@ -213,7 +255,12 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     saveReq.mutate(undefined, {
       onSuccess: () => setDesigning(true),
       onError: (e) => {
-        setCardError(`요구사항을 저장하지 못했어요. ${errorText(e)}`)
+        // 양수 예산에 통화(USD/KRW)가 없으면 서버가 "입력값이 올바르지 않습니다" 로만 알려 줘서 원인을 덧붙인다
+        const draft = history.data?.requirementsDraft
+        const hint = lacksBudgetCurrency(draft?.monthlyBudget, draft?.currency)
+          ? ' 월 예산의 통화(USD 또는 KRW)를 대화로 알려 주세요.'
+          : ''
+        setCardError(`요구사항을 저장하지 못했어요. ${errorText(e)}${hint}`)
         updateCard(messageId, (m) => (m.confirm ? { ...m, confirm: {} } : m))
       },
     })
@@ -254,7 +301,7 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     budget: formatBudget(profile?.monthlyBudget, profile?.currency),
     infraConnection:
       awsDone || project.stage !== 'RECEIVED'
-        ? terraformDone
+        ? terraformDone || project.terraformUploaded === true
           ? 'AWS 계정 + Terraform'
           : 'AWS 계정 연결'
         : undefined,
@@ -282,9 +329,13 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
 
   return {
     designing,
+    /** 이어서 보는 설계 작업이 있으면 그 ID. 없으면 설계 화면이 새로 시작한다 */
+    resumeJobId,
     loading: history.isPending,
     messages,
     info,
+    /** 아직 못 모은 항목의 표시명 */
+    missingLabels: missingLabelsOf(history.data),
     isAiTyping: send.isPending,
     canType,
     error,

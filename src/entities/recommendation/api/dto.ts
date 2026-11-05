@@ -1,17 +1,28 @@
 /**
  * 추천 아키텍처 응답 원본.
  *
- * 백엔드 `GET /v1/projects/{projectId}/architectures` 는 `{ jobId, generatedAt, result }` 를 돌려주고,
+ * 백엔드 `GET /v1/projects/{projectId}/architectures` 는 `{ jobId, generatedAt, result, latestJob }` 를 돌려주고,
  * `result` 는 AI 서버 `POST /architectures` 응답 JSON 을 가공 없이 그대로 담는다 (snake_case).
  * 아래 모양은 AI 서버 소스(architect.py 의 `Architect.run`, schemas.py)를 따른다.
  * 화면에서는 mapper 를 거친 도메인 타입을 쓴다.
  */
 
-/** 백엔드 ArchitectureResponse. result 는 JsonNode(자유 JSON)라 모양을 mapper 에서 확인한다 */
+/** 백엔드 LatestArchitectureJobResponseDto. 성공 결과가 없는 404(AR002) 본문에도 들어 있다 */
+export interface LatestJobDto {
+  jobId: number
+  status: string
+  failureReason?: string | null
+}
+
+/**
+ * 백엔드 ArchitectureResponse. result 는 JsonNode(자유 JSON)라 모양을 mapper 에서 확인한다.
+ * latestJob 은 새 백엔드부터 있다 (작업을 시작한 적이 없으면 null)
+ */
 export interface ArchitectureResponseDto {
   jobId: number
   generatedAt: string
   result: unknown
+  latestJob?: LatestJobDto | null
 }
 
 export interface ScoresDto {

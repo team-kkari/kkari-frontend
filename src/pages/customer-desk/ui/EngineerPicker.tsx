@@ -1,7 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { engineerQueries, type Engineer } from '@/entities/engineer'
 import { closeIcon, radioOnIcon } from '@/shared/ui'
-import { ENGINEERS } from '../model/script'
-import type { Engineer } from '../model/types'
 import { EngineerProfile } from './EngineerProfile'
 import card from './PromptCard.module.css'
 import styles from './EngineerPicker.module.css'
@@ -15,13 +15,14 @@ interface EngineerPickerProps {
 
 export function EngineerPicker({ initial, onSubmit, onClose }: EngineerPickerProps) {
   const [query, setQuery] = useState('')
-  const [pickedId, setPickedId] = useState(initial?.id)
+  const [pickedId, setPickedId] = useState(initial?.engineerId)
+  const { data: engineers, isPending, isError, refetch } = useQuery(engineerQueries.list())
 
   const keyword = query.trim()
   const filtered = keyword
-    ? ENGINEERS.filter((e) => e.name.includes(keyword) || e.company.includes(keyword))
-    : ENGINEERS
-  const picked = ENGINEERS.find((e) => e.id === pickedId)
+    ? (engineers ?? []).filter((e) => e.name.includes(keyword) || e.companyName.includes(keyword))
+    : (engineers ?? [])
+  const picked = engineers?.find((e) => e.engineerId === pickedId)
 
   return (
     <div className={card.card} role="group" aria-labelledby="engineer-picker-title">
@@ -46,18 +47,31 @@ export function EngineerPicker({ initial, onSubmit, onClose }: EngineerPickerPro
       />
 
       <ul className={styles.list}>
+        {isPending && (
+          <li role="status" className={styles.empty}>
+            엔지니어 목록을 불러오는 중…
+          </li>
+        )}
+        {isError && !engineers && (
+          <li role="alert" className={styles.error}>
+            <span>엔지니어 목록을 불러오지 못했어요.</span>
+            <button type="button" className={styles.retry} onClick={() => void refetch()}>
+              다시 시도
+            </button>
+          </li>
+        )}
         {filtered.map((engineer) => {
-          const selected = engineer.id === pickedId
+          const selected = engineer.engineerId === pickedId
           return (
-            <li key={engineer.id}>
+            <li key={engineer.engineerId}>
               <label className={styles.option}>
                 <input
                   type="radio"
                   className={styles.radioInput}
                   name="engineer"
-                  value={engineer.id}
+                  value={engineer.engineerId}
                   checked={selected}
-                  onChange={() => setPickedId(engineer.id)}
+                  onChange={() => setPickedId(engineer.engineerId)}
                 />
                 <EngineerProfile engineer={engineer} />
                 {selected ? (
@@ -69,7 +83,14 @@ export function EngineerPicker({ initial, onSubmit, onClose }: EngineerPickerPro
             </li>
           )
         })}
-        {filtered.length === 0 && <li className={styles.empty}>찾는 엔지니어가 없어요</li>}
+        {engineers && engineers.length === 0 && (
+          <li role="status" className={styles.empty}>
+            아직 등록된 엔지니어가 없어요
+          </li>
+        )}
+        {engineers && engineers.length > 0 && filtered.length === 0 && (
+          <li className={styles.empty}>찾는 엔지니어가 없어요</li>
+        )}
       </ul>
 
       <button

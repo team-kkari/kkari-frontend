@@ -4,6 +4,7 @@ export type {
   ProjectDetail,
   ProjectStage,
   ProjectSummary,
+  ProjectTerraform,
 } from './model/types'
 export { PROJECT_STAGE_LABEL } from './model/types'
 export { projectQueries } from './api/queries'
