@@ -1,0 +1,25 @@
+/* Figma(Wayco-design) 변수 기준 디자인 토큰 */
+:root {
+  --color-white: #ffffff;
+
+  --color-gray-0: #f9fafb;
+  --color-gray-20: #ccd1d7;
+  --color-gray-30: #b0b8c1;
+  --color-gray-40: #8d98a5;
+  --color-gray-50: #707e8f;
+  --color-gray-100: #101214;
+
+  --color-main-60: #215fbc;
+  --color-main-70: #1a4c97;
+  --color-main-90: #082147;
+
+  /* 디자인에 에러 색이 없어 임시로 정함 */
+  --color-red-50: #e5484d;
+  --color-red-0: #fff1f1;
+
+  --radius-small: 8px;
+
+  --font-family-base:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI',
+    sans-serif;
+}

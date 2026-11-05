@@ -1,3 +1,6 @@
+@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+@import './tokens.css';
+
 *,
 *::before,
 *::after {
@@ -11,14 +14,16 @@ body {
 }
 
 body {
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    'Noto Sans KR',
-    sans-serif;
+  font-family: var(--font-family-base);
+  color: var(--color-gray-100);
+  background: var(--color-white);
   -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
 }
 
 #root {
