@@ -38,11 +38,26 @@ src/
   `app → pages → widgets → features → entities → shared`
 - 같은 레이어의 다른 slice는 import 하지 않음 (예: `features/a` → `features/b` ❌)
 - slice 외부에서는 **`index.ts`(public API)를 통해서만** import
-  - ✅ `import { useCounterStore } from '@/entities/counter'`
-  - ❌ `import { useCounterStore } from '@/entities/counter/model/store'`
+  - ✅ `import { useUserStore } from '@/entities/user'`
+  - ❌ `import { useUserStore } from '@/entities/user/model/store'`
 - slice 내부 segment: `ui/`, `model/`(zustand store, 타입), `api/`, `lib/`, `config/`
 - 절대 경로 alias: `@/` → `src/`
 
 ### Zustand store 예시
 
-`src/entities/counter/model/store.ts` 참고. store는 해당 slice의 `model/` 안에 두고, `index.ts`에서 export 합니다.
+store는 해당 slice의 `model/` 안에 두고, `index.ts`에서 export 합니다.
+
+```ts
+// src/entities/user/model/store.ts
+import { create } from 'zustand'
+
+interface UserState {
+  name: string | null
+  setName: (name: string) => void
+}
+
+export const useUserStore = create<UserState>()((set) => ({
+  name: null,
+  setName: (name) => set({ name }),
+}))
+```
