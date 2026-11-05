@@ -3,7 +3,10 @@ import { ConsultationPage } from '@/pages/consultation'
 import { CustomerDeskPage } from '@/pages/customer-desk'
 import { LoginPage } from '@/pages/login'
 import { MspProjectsPage } from '@/pages/msp-projects'
-import { RecommendationResultPage } from '@/pages/recommendation-result'
+import {
+  CustomerRecommendationResultPage,
+  RecommendationResultPage,
+} from '@/pages/recommendation-result'
 import { SignUpPage } from '@/pages/signup'
 import { RequireAuth } from './RequireAuth'
 
@@ -26,7 +29,10 @@ const router = createBrowserRouter([
   {
     // 고객(서비스 담당자)만 들어갈 수 있는 고객 창구
     element: <RequireAuth role="CUSTOMER" />,
-    children: [{ path: '/desk', element: <CustomerDeskPage /> }],
+    children: [
+      { path: '/desk', element: <CustomerDeskPage /> },
+      { path: '/desk/services/:serviceId/result', element: <CustomerRecommendationResultPage /> },
+    ],
   },
   { path: '*', element: <Navigate to="/" replace /> },
 ])

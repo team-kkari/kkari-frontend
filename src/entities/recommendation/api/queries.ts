@@ -33,7 +33,14 @@ export function latestJobOf(
 }
 
 const fetchResult = async (projectId: number) =>
-  toRecommendationResult(await requestArchitectures(projectId), projectId)
+  toRecommendationResult(
+    await requestArchitectures(`/v1/projects/${projectId}/architectures`),
+    projectId,
+  )
+
+/** 4xx(생성 전, 권한 없음 등)는 다시 해도 같다 */
+const retryServerError = (failureCount: number, error: Error) =>
+  !(error instanceof ApiError && error.status < 500) && failureCount < 1
 
 export const recommendationQueries = {
   all: () => ['recommendations'] as const,
@@ -57,9 +64,19 @@ export const recommendationQueries = {
       queryFn: () => fetchResult(projectId),
       // 주소의 숫자가 아닌 값(NaN)으로는 호출하지 않는다
       enabled: Number.isInteger(projectId),
-      // 4xx(생성 전, 권한 없음 등)는 다시 해도 같다
-      retry: (failureCount, error) =>
-        !(error instanceof ApiError && error.status < 500) && failureCount < 1,
+      retry: retryServerError,
+    }),
+  /** 고객이 보는 내 서비스의 추천 결과. 서비스는 백엔드에서 프로젝트와 같은 id 를 쓴다. 생성 전이면 AR002 오류 */
+  customerResult: (serviceId: number) =>
+    queryOptions({
+      queryKey: [...recommendationQueries.all(), 'customer-result', serviceId],
+      queryFn: async () =>
+        toRecommendationResult(
+          await requestArchitectures(`/v1/customer/services/${serviceId}/architectures`),
+          serviceId,
+        ),
+      enabled: Number.isInteger(serviceId),
+      retry: retryServerError,
     }),
   /**
    * 의뢰의 우선순위를 "비용 > 성능" 처럼 이은 문자열. 요구사항을 아직 입력하지 않았으면 빈 문자열.
