@@ -1,7 +1,6 @@
 import { Link } from 'react-router'
-import type { ProjectDetail } from '@/entities/project'
+import { groupAnswers, type ProjectDetail } from '@/entities/project'
 import { formatDate } from '@/shared/lib'
-import { groupAnswers } from '../../model/answers'
 import { STAGE_LABEL } from '../../model/stage'
 import { stepPath } from '../../model/steps'
 import styles from '../MspProjectsPage.module.css'

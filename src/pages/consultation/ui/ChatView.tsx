@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
+import type { AnswerSection } from '@/entities/project'
 import { waycoMarkIcon } from '@/shared/ui'
 import type { ChatMessage, CollectedInfo, ConnectResult } from '../model/types'
 import { AwsConnectCard } from './AwsConnectCard'
 import { ChoiceCardView } from './ChoiceCardView'
 import { ConfirmCard } from './ConfirmCard'
+import { CustomerAnswersCard } from './CustomerAnswersCard'
 import { MessageInput } from './MessageInput'
 import { QuickReplyPanel } from './QuickReplyPanel'
 import { TerraformUploadCard } from './TerraformUploadCard'
@@ -14,6 +16,9 @@ interface ChatViewProps {
   title: string
   /** 고객이 접수한 서비스면 그 답변을 볼 수 있는 화면 주소 */
   answersHref?: string
+  serviceName?: string | null
+  /** 고객이 접수한 답변. 있으면 대화 맨 위에 보여준다 */
+  answerSections?: AnswerSection[]
   projectId: number
   /** 완료된 의뢰: 기록만 보여주고 입력을 막는다 */
   done?: boolean
@@ -36,6 +41,8 @@ interface ChatViewProps {
 export function ChatView({
   title,
   answersHref,
+  serviceName,
+  answerSections = [],
   projectId,
   done = false,
   active = true,
@@ -86,6 +93,9 @@ export function ChatView({
       </header>
 
       <div className={styles.messages} aria-live="polite">
+        {answerSections.length > 0 && (
+          <CustomerAnswersCard serviceName={serviceName} sections={answerSections} />
+        )}
         {messages.map((message) =>
           message.role === 'user' ? (
             <div key={message.id} className={styles.userRow}>

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import {
+  groupAnswers,
   projectAnswersPath,
   projectQueries,
   projectResultPath,
@@ -100,6 +101,8 @@ function ConsultationRoom({
                 ? projectAnswersPath(project.projectId)
                 : undefined
             }
+            serviceName={project.serviceName}
+            answerSections={groupAnswers(project.answers)}
             projectId={project.projectId}
             messages={consultation.messages}
             info={consultation.info}
