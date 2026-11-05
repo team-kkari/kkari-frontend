@@ -68,3 +68,32 @@
   outline: 0.125rem solid var(--color-main-60);
   outline-offset: 0.125rem;
 }
+
+.fields {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 40rem;
+}
+
+.field {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d9dde3;
+  border-radius: 0.75rem;
+  background: #fff;
+  font: inherit;
+  font-size: 0.9375rem;
+}
+
+.field:focus {
+  outline: 2px solid #5892ec;
+  outline-offset: 0;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #b42318;
+}

@@ -11,6 +11,8 @@ export type {
   Scores,
 } from './model/types'
 export { MAX_SCORE, SCORE_KEYS, SCORE_LABEL } from './model/types'
-export { recommendationQueries } from './api/queries'
+export { isArchitectureNotFound, recommendationQueries } from './api/queries'
+export { useArchitectureGeneration } from './model/useArchitectureGeneration'
+export type { GenerationPhase } from './model/useArchitectureGeneration'
 export { ScoreDots } from './ui/ScoreDots'
 export { ScoreRadar } from './ui/ScoreRadar'

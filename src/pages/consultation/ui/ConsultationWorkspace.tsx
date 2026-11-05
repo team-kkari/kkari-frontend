@@ -1,80 +1,96 @@
-import { useEffect, useRef } from 'react'
-import type { ConsultationSnapshot, ConsultationStatus } from '../model/types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Navigate, useNavigate } from 'react-router'
+import { projectQueries, projectResultPath, type ProjectDetail } from '@/entities/project'
 import { useConsultation } from '../model/useConsultation'
 import { ChatView } from './ChatView'
 import { DesigningView } from './DesigningView'
 import { InfoPanel } from './InfoPanel'
-import { StartView } from './StartView'
 import styles from './ConsultationWorkspace.module.css'
 
 interface ConsultationWorkspaceProps {
-  active: boolean
-  status: ConsultationStatus
-  initial?: ConsultationSnapshot
-  /** 첫 메시지를 보냈을 때 */
-  onStarted: () => void
-  /** 대화에서 고객사 이름을 알게 됐을 때 */
-  onNameChange: (name: string) => void
-  /** 아키텍처 설계가 끝났을 때 */
-  onDesignComplete: () => void
+  projectId: number
+  /** 시작 화면에서 입력한 첫 메시지 */
+  firstMessage?: string
 }
 
-/**
- * 의뢰 하나의 작업 영역(대화 + 수집한 정보).
- * 사이드바로 다른 의뢰를 봐도 진행 상태가 유지되게, 보이지 않을 때도 언마운트하지 않고 숨긴다.
- */
-export function ConsultationWorkspace({
-  active,
-  status,
-  initial,
-  onStarted,
-  onNameChange,
-  onDesignComplete,
-}: ConsultationWorkspaceProps) {
-  const consultation = useConsultation(initial)
-  const { stage, info } = consultation
-  const done = status === 'done'
+/** 프로젝트 하나의 작업 영역(대화 + 수집한 정보). 프로젝트 정보를 받은 뒤에 상담을 연다 */
+export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationWorkspaceProps) {
+  const project = useQuery(projectQueries.detail(projectId))
 
-  // 부모 콜백은 렌더마다 새로 만들어지므로 ref로 최신 값만 참조한다
-  const onNameChangeRef = useRef(onNameChange)
-  useEffect(() => {
-    onNameChangeRef.current = onNameChange
-  })
+  if (project.isPending) return <Status message="의뢰를 불러오는 중…" />
+  if (project.isError) {
+    return (
+      <Status
+        message="의뢰를 불러오지 못했어요. 왼쪽 목록에서 다시 골라 주세요."
+        onRetry={() => void project.refetch()}
+      />
+    )
+  }
+  // 추천이 끝난 의뢰는 대화 대신 결과를 보여준다
+  if (project.data.stage === 'RECOMMENDED') {
+    return <Navigate to={projectResultPath(projectId)} replace />
+  }
+  return <ConsultationRoom project={project.data} firstMessage={firstMessage} />
+}
 
-  useEffect(() => {
-    if (info.customer) onNameChangeRef.current(info.customer)
-  }, [info.customer])
+function ConsultationRoom({
+  project,
+  firstMessage,
+}: {
+  project: ProjectDetail
+  firstMessage?: string
+}) {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const consultation = useConsultation({ project, firstMessage })
 
-  const handleStart = (text: string) => {
-    onStarted()
-    consultation.start(text)
+  const handleDesignDone = () => {
+    void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
+    navigate(projectResultPath(project.projectId), { replace: true })
   }
 
-  // 완료된 의뢰는 설계 화면 대신 대화 기록을 보여준다
-  const view = done ? 'chat' : stage
+  if (consultation.loading) return <Status message="대화를 불러오는 중…" />
 
   return (
-    <div className={[styles.workspace, !active && styles.hidden].filter(Boolean).join(' ')}>
+    <div className={styles.workspace}>
       <main className={styles.main}>
-        {view === 'start' && <StartView onStart={handleStart} />}
-        {view === 'chat' && (
+        {consultation.designing ? (
+          <DesigningView projectId={project.projectId} onDone={handleDesignDone} />
+        ) : (
           <ChatView
-            title={info.customer ?? '새 의뢰'}
-            done={done}
-            active={active}
+            title={project.companyName}
+            projectId={project.projectId}
             messages={consultation.messages}
-            info={info}
+            info={consultation.info}
             isAiTyping={consultation.isAiTyping}
             canType={consultation.canType}
+            error={consultation.error}
+            onRetry={consultation.retry}
             onSend={consultation.sendMessage}
             onConfirmChoice={consultation.confirmChoice}
             onCompleteConnect={consultation.completeConnect}
             onConfirmDesign={consultation.confirmDesign}
           />
         )}
-        {view === 'designing' && <DesigningView onComplete={onDesignComplete} />}
       </main>
-      {view === 'chat' && <InfoPanel info={info} />}
+      {!consultation.designing && <InfoPanel info={consultation.info} />}
+    </div>
+  )
+}
+
+function Status({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className={styles.workspace}>
+      <main className={styles.main}>
+        <p role="status" className={styles.status}>
+          {message}
+          {onRetry && (
+            <button type="button" className={styles.retryButton} onClick={onRetry}>
+              다시 시도
+            </button>
+          )}
+        </p>
+      </main>
     </div>
   )
 }

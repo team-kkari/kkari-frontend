@@ -1,8 +1,10 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { SignUpForm } from '@/features/signup'
 import { AuthLayout } from '@/widgets/auth-layout'
 
 export function SignUpPage() {
+  const navigate = useNavigate()
+
   return (
     <AuthLayout
       title="회원가입"
@@ -14,7 +16,7 @@ export function SignUpPage() {
         </>
       }
     >
-      <SignUpForm />
+      <SignUpForm onSuccess={() => navigate('/', { replace: true })} />
     </AuthLayout>
   )
 }

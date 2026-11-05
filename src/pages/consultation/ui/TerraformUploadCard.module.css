@@ -20,6 +20,12 @@
     background-color 0.15s;
 }
 
+.dropzoneHint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-gray-40);
+}
+
 .dropzone:hover:not(:disabled),
 .dropzone.dragging {
   border-color: var(--color-main-60);
@@ -97,6 +103,11 @@
   border-radius: 0.25rem;
   background: transparent;
   cursor: pointer;
+}
+
+.remove:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .remove:focus-visible {

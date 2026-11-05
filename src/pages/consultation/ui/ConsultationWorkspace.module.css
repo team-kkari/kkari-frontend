@@ -15,3 +15,25 @@
   min-width: 0;
   height: 100%;
 }
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  height: 100%;
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #6b7280;
+}
+
+.retryButton {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

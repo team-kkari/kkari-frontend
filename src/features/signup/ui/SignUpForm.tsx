@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent } from 'react'
 import { Button, Checkbox, TextField } from '@/shared/ui'
+import { getSignUpErrorMessage, useSignUp } from '../model/useSignUp'
 import {
   validateSignUp,
   type SignUpErrors,
@@ -18,11 +19,12 @@ const INITIAL_VALUES: SignUpValues = {
 }
 
 interface SignUpFormProps {
-  /** 검증을 통과했을 때 호출. API 연결은 후속 작업 */
-  onSubmit?: (values: SignUpValues) => void
+  /** 가입에 성공하고 세션이 저장된 뒤 호출 */
+  onSuccess?: () => void
 }
 
-export function SignUpForm({ onSubmit }: SignUpFormProps) {
+export function SignUpForm({ onSuccess }: SignUpFormProps) {
+  const { mutate, isPending, error, reset } = useSignUp()
   const [values, setValues] = useState(INITIAL_VALUES)
   const [errors, setErrors] = useState<SignUpErrors>({})
 
@@ -36,10 +38,13 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
       // 비밀번호를 고치면 '일치하지 않아요' 에러도 더 이상 맞지 않으므로 같이 지운다
       ...(field === 'password' && { passwordConfirm: undefined }),
     }))
+    // 입력을 고치기 시작하면 이전 서버 오류 문구는 더 이상 맞지 않는다
+    if (error) reset()
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (isPending) return
     const trimmed = {
       ...values,
       name: values.name.trim(),
@@ -50,7 +55,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    onSubmit?.(trimmed)
+    mutate(trimmed, { onSuccess })
   }
 
   return (
@@ -89,7 +94,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
         name="password"
         autoComplete="new-password"
         placeholder="비밀번호를 입력하세요"
-        helperText="8자 이상, 영문과 숫자를 포함해 주세요"
+        helperText="8~64자로 입력해 주세요"
         value={values.password}
         error={errors.password}
         onChange={(event) => update('password', event.target.value)}
@@ -122,7 +127,14 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
           </p>
         )}
       </div>
-      <Button type="submit">회원가입</Button>
+      {error && (
+        <p role="alert" className={styles.formError}>
+          {getSignUpErrorMessage(error)}
+        </p>
+      )}
+      <Button type="submit" disabled={isPending}>
+        {isPending ? '가입 중...' : '회원가입'}
+      </Button>
     </form>
   )
 }

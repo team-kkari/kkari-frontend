@@ -80,17 +80,24 @@ export interface Recommendation {
   cons: string[]
   migrationSteps: string[]
   cost: CostBreakdown
+  /** 현재 대비 증감. comparable 이 false 면 자리표시용 0 이다 */
   vsCurrent: { usd: number; pct: number }
+  /** 현재 월 비용을 알고 이 안의 비용도 계산돼 vsCurrent 가 실제 값인지 */
+  comparable: boolean
   layout: DiagramLayout
 }
 
-/** 한 의뢰에 대한 추천 결과 전체 */
+/** 한 프로젝트(의뢰)에 대한 추천 결과 전체 */
 export interface RecommendationResult {
-  requestId: string
-  title: string
-  priority: string
+  projectId: number
+  /** 이 결과를 만든 생성 작업 */
+  jobId: number
+  /** 생성이 끝난 시각 (ISO 문자열) */
+  generatedAt: string
+  /** AI 순위 생성에 실패하면 빈 문자열 */
   summary: string
-  currentMonthlyUsd: number
+  /** null 이면 현재 월 비용을 알 수 없다 (고객이 주지 않았고 AI 추정도 못 함) */
+  currentMonthlyUsd: number | null
   recommendations: Recommendation[]
 }
 

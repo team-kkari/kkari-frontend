@@ -9,7 +9,8 @@ import { getAccessToken, useSessionStore } from './session'
  * - 실패하면 ApiError 를 던진다. 토큰을 들고 간 요청이 401 이면 세션을 지운다
  */
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getAccessToken()
+  // 로그인·가입은 공개 경로라 토큰을 붙이지 않는다 (만료된 토큰이 남아 있어도 로그인이 되도록)
+  const token = path.startsWith('/v1/auth/') ? null : getAccessToken()
   const isForm = init?.body instanceof FormData
 
   const headers = new Headers(init?.headers)

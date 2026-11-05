@@ -16,8 +16,7 @@ export function LoginPage() {
         </>
       }
     >
-      {/* API 연결 전이라 검증만 통과하면 바로 메인으로 이동 */}
-      <LoginForm onSubmit={() => navigate('/', { replace: true })} />
+      <LoginForm onSuccess={() => navigate('/', { replace: true })} />
     </AuthLayout>
   )
 }

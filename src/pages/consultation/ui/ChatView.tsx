@@ -11,6 +11,7 @@ import styles from './ChatView.module.css'
 
 interface ChatViewProps {
   title: string
+  projectId: number
   /** 완료된 의뢰: 기록만 보여주고 입력을 막는다 */
   done?: boolean
   /** 화면에 보이는 의뢰인지. 다시 보일 때 맨 아래로 스크롤한다 */
@@ -19,6 +20,9 @@ interface ChatViewProps {
   info: CollectedInfo
   isAiTyping: boolean
   canType: boolean
+  /** 서버 오류 안내. 있으면 메시지 아래에 보여주고 다시 시도 버튼을 붙인다 */
+  error?: string | null
+  onRetry?: () => void
   onSend: (text: string) => void
   onConfirmChoice: (messageId: string, optionId: string) => void
   onCompleteConnect: (messageId: string, answer: string, result: ConnectResult) => void
@@ -27,12 +31,15 @@ interface ChatViewProps {
 
 export function ChatView({
   title,
+  projectId,
   done = false,
   active = true,
   messages,
   info,
   isAiTyping,
   canType,
+  error,
+  onRetry,
   onSend,
   onConfirmChoice,
   onCompleteConnect,
@@ -42,7 +49,7 @@ export function ChatView({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-  }, [messages.length, isAiTyping])
+  }, [messages.length, isAiTyping, error])
 
   useEffect(() => {
     if (active) bottomRef.current?.scrollIntoView({ block: 'end' })
@@ -85,6 +92,7 @@ export function ChatView({
               )}
               {message.connect?.kind === 'aws' && (
                 <AwsConnectCard
+                  projectId={projectId}
                   done={!!message.connect.done}
                   savedRoleArn={message.connect.result?.roleArn}
                   onConnected={(roleArn) =>
@@ -101,6 +109,7 @@ export function ChatView({
               )}
               {message.connect?.kind === 'terraform' && (
                 <TerraformUploadCard
+                  projectId={projectId}
                   done={!!message.connect.done}
                   savedFile={message.connect.result?.file}
                   onStart={(file) =>
@@ -121,6 +130,16 @@ export function ChatView({
               <span />
               <span />
             </span>
+          </div>
+        )}
+        {error && (
+          <div role="alert" className={styles.errorRow}>
+            <p className={styles.errorText}>{error}</p>
+            {onRetry && (
+              <button type="button" className={styles.retryButton} onClick={onRetry}>
+                다시 시도
+              </button>
+            )}
           </div>
         )}
         <div ref={bottomRef} className={styles.bottomSpacer} />

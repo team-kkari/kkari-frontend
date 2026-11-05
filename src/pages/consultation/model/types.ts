@@ -50,22 +50,3 @@ export type ChatMessage =
       /** 입력창 위에 띄우는 빠른 답변 목록 */
       quickReplies?: string[]
     }
-
-export type ConsultationStage = 'start' | 'chat' | 'designing'
-
-/** 의뢰 하나의 화면 상태. 목업 완료 의뢰는 이 값으로 바로 띄운다 */
-export interface ConsultationSnapshot {
-  stage: ConsultationStage
-  messages: ChatMessage[]
-  info: CollectedInfo
-  stepIndex: number
-}
-
-export type ConsultationStatus = 'in-progress' | 'done'
-
-export interface Consultation {
-  id: string
-  name: string
-  status: ConsultationStatus
-  initial?: ConsultationSnapshot
-}
