@@ -52,7 +52,7 @@ export function TermTooltip({ term, children }: TermTooltipProps) {
           <div
             id={id}
             role="tooltip"
-            className="pointer-events-none fixed z-[100] flex flex-col gap-1 rounded-small bg-gray-100 px-3 py-2.5 leading-normal shadow-lg"
+            className="pointer-events-none fixed z-[100] flex flex-col gap-1 rounded-small bg-main-100 px-3 py-2.5 leading-normal shadow-lg"
             style={{
               left: pos.left,
               top: pos.top,
