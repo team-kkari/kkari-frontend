@@ -1,8 +1,10 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { LoginForm } from '@/features/login'
 import { AuthLayout } from '@/widgets/auth-layout'
 
 export function LoginPage() {
+  const navigate = useNavigate()
+
   return (
     <AuthLayout
       title="로그인"
@@ -14,7 +16,8 @@ export function LoginPage() {
         </>
       }
     >
-      <LoginForm />
+      {/* API 연결 전이라 검증만 통과하면 바로 메인으로 이동 */}
+      <LoginForm onSubmit={() => navigate('/', { replace: true })} />
     </AuthLayout>
   )
 }
