@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Engineer } from '@/entities/engineer'
 import { ENGINEER_MESSAGE, SCRIPT } from './script'
-import type { Answers, ChatMessage, DeskStage, Engineer, FieldKey } from './types'
+import type { Answers, ChatMessage, DeskStage, FieldKey } from './types'
 
-/** AI가 답을 준비하는 척하는 시간. API 연결 후에는 응답 대기로 바뀐다 */
+/** AI가 답을 준비하는 척하는 시간. 질문은 대본이 정하므로 서버를 기다리지 않고 대화 리듬만 낸다 */
 const AI_DELAY_MS = 700
 
 let messageSeq = 0
@@ -21,8 +22,8 @@ function aiMessageFor(stepIndex: number, answers: Answers): ChatMessage {
 }
 
 /**
- * 고객 창구 대화 상태 (목업 시나리오). 대화 → 담당 엔지니어 선택 → 제출 전 확인.
- * 제출하면 페이지가 내 서비스에 올리고 reset으로 처음 상태로 돌린다
+ * 고객 창구 대화 상태. 대화 → 담당 엔지니어 선택 → 제출 전 확인.
+ * 제출은 페이지가 서버에 보내고, 성공하면 reset으로 처음 상태로 돌린다
  */
 export function useCustomerDesk() {
   const [stage, setStage] = useState<DeskStage>('start')
@@ -74,7 +75,7 @@ export function useCustomerDesk() {
     setEngineer(picked)
     setMessages((prev) => [
       ...prev,
-      { id: nextId(), role: 'user', text: `${picked.name} · ${picked.company}` },
+      { id: nextId(), role: 'user', text: `${picked.name} · ${picked.companyName}` },
     ])
     later(() => setStage('review'), 400)
   }

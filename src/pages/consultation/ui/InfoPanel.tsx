@@ -5,9 +5,11 @@ import styles from './InfoPanel.module.css'
 
 interface InfoPanelProps {
   info: CollectedInfo
+  /** AI 가 아직 확인하지 못한 항목의 표시명 */
+  missing?: string[]
 }
 
-export function InfoPanel({ info }: InfoPanelProps) {
+export function InfoPanel({ info, missing = [] }: InfoPanelProps) {
   const collectedCount = INFO_ITEMS.filter(({ key }) => info[key]).length
   const total = INFO_ITEMS.length
 
@@ -42,6 +44,16 @@ export function InfoPanel({ info }: InfoPanelProps) {
           )
         })}
       </ul>
+      {missing.length > 0 && (
+        <section className={styles.missing} aria-label="더 확인할 항목">
+          <h3 className={styles.missingTitle}>더 확인할 항목</h3>
+          <ul className={styles.missingList}>
+            {missing.map((label) => (
+              <li key={label}>{label}</li>
+            ))}
+          </ul>
+        </section>
+      )}
     </aside>
   )
 }

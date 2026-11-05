@@ -1,80 +1,129 @@
-import { useEffect, useRef } from 'react'
-import type { ConsultationSnapshot, ConsultationStatus } from '../model/types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { Navigate, useNavigate } from 'react-router'
+import { projectQueries, projectResultPath, type ProjectDetail } from '@/entities/project'
+import {
+  latestJobOf,
+  recommendationQueries,
+  type LatestArchitectureJob,
+} from '@/entities/recommendation'
 import { useConsultation } from '../model/useConsultation'
 import { ChatView } from './ChatView'
 import { DesigningView } from './DesigningView'
 import { InfoPanel } from './InfoPanel'
-import { StartView } from './StartView'
 import styles from './ConsultationWorkspace.module.css'
 
 interface ConsultationWorkspaceProps {
-  active: boolean
-  status: ConsultationStatus
-  initial?: ConsultationSnapshot
-  /** 첫 메시지를 보냈을 때 */
-  onStarted: () => void
-  /** 대화에서 고객사 이름을 알게 됐을 때 */
-  onNameChange: (name: string) => void
-  /** 아키텍처 설계가 끝났을 때 */
-  onDesignComplete: () => void
+  projectId: number
+  /** 시작 화면에서 입력한 첫 메시지 */
+  firstMessage?: string
 }
 
-/**
- * 의뢰 하나의 작업 영역(대화 + 수집한 정보).
- * 사이드바로 다른 의뢰를 봐도 진행 상태가 유지되게, 보이지 않을 때도 언마운트하지 않고 숨긴다.
- */
-export function ConsultationWorkspace({
-  active,
-  status,
-  initial,
-  onStarted,
-  onNameChange,
-  onDesignComplete,
-}: ConsultationWorkspaceProps) {
-  const consultation = useConsultation(initial)
-  const { stage, info } = consultation
-  const done = status === 'done'
+/** 프로젝트 하나의 작업 영역(대화 + 수집한 정보). 프로젝트 정보를 받은 뒤에 상담을 연다 */
+export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationWorkspaceProps) {
+  const project = useQuery(projectQueries.detail(projectId))
+  // 백엔드가 추천 뒤에도 단계를 ANALYZED 로 두므로(RECOMMENDED 로 올리는 곳이 없음), 이미 만든 결과가 있는지 직접 본다.
+  // 결과가 없으면 AR002 로 실패하고 그대로 상담을 이어간다
+  const analyzed = project.data?.stage === 'ANALYZED'
+  const existingResult = useQuery({ ...recommendationQueries.exists(projectId), enabled: analyzed })
 
-  // 부모 콜백은 렌더마다 새로 만들어지므로 ref로 최신 값만 참조한다
-  const onNameChangeRef = useRef(onNameChange)
-  useEffect(() => {
-    onNameChangeRef.current = onNameChange
-  })
+  // 처음 불러올 때만 상태 화면을 보여준다. 이후 재조회(분석 직후 단계 변경 등)로 방이 다시 만들어지면
+  // 카드·입력 상태가 모두 사라지기 때문에, 한 번 열린 방은 유지한다
+  const [opened, setOpened] = useState(false)
+  const loading = project.isPending || (analyzed && existingResult.isPending)
+  if (!loading && !opened) setOpened(true)
 
-  useEffect(() => {
-    if (info.customer) onNameChangeRef.current(info.customer)
-  }, [info.customer])
+  if (loading && !opened) return <Status message="의뢰를 불러오는 중…" />
+  if (project.isError && !project.data) {
+    return (
+      <Status
+        message="의뢰를 불러오지 못했어요. 왼쪽 목록에서 다시 골라 주세요."
+        onRetry={() => void project.refetch()}
+      />
+    )
+  }
+  if (!project.data) return <Status message="의뢰를 불러오는 중…" />
+  // 추천이 끝난 의뢰는 대화 대신 결과를 보여준다
+  if (project.data.stage === 'RECOMMENDED' || existingResult.isSuccess) {
+    return <Navigate to={projectResultPath(projectId)} replace />
+  }
+  return (
+    <ConsultationRoom
+      project={project.data}
+      firstMessage={firstMessage}
+      // 아직 추천 결과가 없을 때(AR002)도 가장 최근 설계 작업이 함께 온다. 방이 열릴 때 한 번만 본다
+      designJob={latestJobOf(existingResult.data, existingResult.error)}
+    />
+  )
+}
 
-  const handleStart = (text: string) => {
-    onStarted()
-    consultation.start(text)
+function ConsultationRoom({
+  project,
+  firstMessage,
+  designJob,
+}: {
+  project: ProjectDetail
+  firstMessage?: string
+  designJob: LatestArchitectureJob | null
+}) {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const consultation = useConsultation({ project, firstMessage, designJob })
+
+  const handleDesignDone = () => {
+    void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
+    navigate(projectResultPath(project.projectId), { replace: true })
   }
 
-  // 완료된 의뢰는 설계 화면 대신 대화 기록을 보여준다
-  const view = done ? 'chat' : stage
+  if (consultation.loading) return <Status message="대화를 불러오는 중…" />
 
   return (
-    <div className={[styles.workspace, !active && styles.hidden].filter(Boolean).join(' ')}>
+    <div className={styles.workspace}>
       <main className={styles.main}>
-        {view === 'start' && <StartView onStart={handleStart} />}
-        {view === 'chat' && (
+        {consultation.designing ? (
+          <DesigningView
+            projectId={project.projectId}
+            resumeJobId={consultation.resumeJobId}
+            onDone={handleDesignDone}
+          />
+        ) : (
           <ChatView
-            title={info.customer ?? '새 의뢰'}
-            done={done}
-            active={active}
+            title={project.companyName}
+            projectId={project.projectId}
             messages={consultation.messages}
-            info={info}
+            info={consultation.info}
             isAiTyping={consultation.isAiTyping}
             canType={consultation.canType}
+            error={consultation.error}
+            onRetry={consultation.retry}
             onSend={consultation.sendMessage}
             onConfirmChoice={consultation.confirmChoice}
             onCompleteConnect={consultation.completeConnect}
+            onSkipConnect={consultation.skipConnect}
             onConfirmDesign={consultation.confirmDesign}
           />
         )}
-        {view === 'designing' && <DesigningView onComplete={onDesignComplete} />}
       </main>
-      {view === 'chat' && <InfoPanel info={info} />}
+      {!consultation.designing && (
+        <InfoPanel info={consultation.info} missing={consultation.missingLabels} />
+      )}
+    </div>
+  )
+}
+
+function Status({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className={styles.workspace}>
+      <main className={styles.main}>
+        <p role="status" className={styles.status}>
+          {message}
+          {onRetry && (
+            <button type="button" className={styles.retryButton} onClick={onRetry}>
+              다시 시도
+            </button>
+          )}
+        </p>
+      </main>
     </div>
   )
 }

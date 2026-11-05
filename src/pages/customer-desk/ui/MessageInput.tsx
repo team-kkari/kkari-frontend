@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { ANSWER_VALUE_MAX_LENGTH } from '@/entities/customer-service'
 import { arrowUpIcon } from '@/shared/ui'
 import styles from './MessageInput.module.css'
 
@@ -49,6 +50,7 @@ export function MessageInput({
         value={text}
         placeholder={placeholder}
         disabled={disabled}
+        maxLength={ANSWER_VALUE_MAX_LENGTH}
         aria-label="메시지 입력"
         onChange={(event) => setText(event.target.value)}
       />

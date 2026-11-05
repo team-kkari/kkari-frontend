@@ -1,16 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { isEmail } from '@/shared/lib'
 import { Button, Checkbox, TextField } from '@/shared/ui'
+import { getLoginErrorMessage, useLogin } from '../model/useLogin'
 import styles from './LoginForm.module.css'
 
 type Field = 'email' | 'password'
 type FieldErrors = Partial<Record<Field, string>>
-
-export interface LoginValues {
-  email: string
-  password: string
-  remember: boolean
-}
 
 function validate(email: string, password: string): FieldErrors {
   const errors: FieldErrors = {}
@@ -21,11 +16,12 @@ function validate(email: string, password: string): FieldErrors {
 }
 
 interface LoginFormProps {
-  /** 검증을 통과했을 때 호출. API 연결은 후속 작업 */
-  onSubmit?: (values: LoginValues) => void
+  /** 로그인에 성공하고 세션이 저장된 뒤 호출 */
+  onSuccess?: () => void
 }
 
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSuccess }: LoginFormProps) {
+  const { mutate, isPending, error, reset } = useLogin()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -33,16 +29,20 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
   const clearError = (field: Field) => {
     setFieldErrors((prev) => ({ ...prev, [field]: undefined }))
+    // 입력을 고치기 시작하면 이전 서버 오류 문구는 더 이상 맞지 않는다
+    if (error) reset()
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (isPending) return
     const trimmedEmail = email.trim()
     const errors = validate(trimmedEmail, password)
     setFieldErrors(errors)
     if (Object.keys(errors).length > 0) return
 
-    onSubmit?.({ email: trimmedEmail, password, remember })
+    // 세션은 항상 localStorage 에 저장되므로 '로그인 상태 유지' 값은 아직 동작에 쓰이지 않는다
+    mutate({ email: trimmedEmail, password }, { onSuccess })
   }
 
   return (
@@ -80,7 +80,14 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         {/* 비밀번호 찾기는 아직 기능이 없어 텍스트만 둔다 */}
         <span className={styles.findPassword}>비밀번호 찾기</span>
       </div>
-      <Button type="submit">로그인</Button>
+      {error && (
+        <p role="alert" className={styles.formError}>
+          {getLoginErrorMessage(error)}
+        </p>
+      )}
+      <Button type="submit" disabled={isPending}>
+        {isPending ? '로그인 중...' : '로그인'}
+      </Button>
     </form>
   )
 }

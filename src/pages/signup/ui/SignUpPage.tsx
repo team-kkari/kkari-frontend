@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { RoleSelection, SignUpForm, type SignUpRole } from '@/features/signup'
 import { Button } from '@/shared/ui'
 import { AuthLayout } from '@/widgets/auth-layout'
@@ -54,6 +54,7 @@ const BRAND = {
 }
 
 export function SignUpPage() {
+  const navigate = useNavigate()
   const [step, setStep] = useState<'select' | SignUpRole>('select')
   const [selectedRole, setSelectedRole] = useState<SignUpRole>()
   const isSelecting = step === 'select'
@@ -97,7 +98,11 @@ export function SignUpPage() {
           </Button>
         </div>
       ) : (
-        <SignUpForm role={step} />
+        <SignUpForm
+          role={step}
+          // 가입한 역할의 첫 화면으로 이동 (고객은 고객 창구, 엔지니어는 의뢰 상담)
+          onSuccess={() => navigate(step === 'customer' ? '/desk' : '/', { replace: true })}
+        />
       )}
     </AuthLayout>
   )

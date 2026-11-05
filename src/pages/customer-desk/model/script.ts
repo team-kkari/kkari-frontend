@@ -1,8 +1,9 @@
-import type { Answers, Engineer, FieldKey, Prompt } from './types'
+import type { Answers, FieldKey, Prompt } from './types'
 
 /**
- * API 연결 전까지 쓰는 목업 대화 시나리오.
+ * 고객 창구 대화 대본. 질문 문구와 선택지는 프론트가 정한다.
  * 실제로는 AI가 대화에서 항목을 뽑아내지만, 지금은 질문 하나에 항목 하나씩 채운다.
+ * 답은 제출할 때 QUESTION_LABEL 을 키로 하는 answers 로 서버에 보낸다.
  */
 
 export const SUGGESTIONS = ['요금을 줄이고 싶어요', '서비스가 자주 멈춰요', '보안이 걱정돼요']
@@ -182,13 +183,29 @@ export const SCRIPT: ScriptStep[] = [
 export const ENGINEER_MESSAGE =
   '필요한 내용을 다 모았어요. 답변을 전달할 담당 엔지니어를 골라 주세요.'
 
-export const ENGINEERS: Engineer[] = [
-  { id: 'kim-doyun', name: '김도윤', company: '클라우드웍스' },
-  { id: 'park-seoyeon', name: '박서연', company: '클라우드웍스' },
-  { id: 'lee-junho', name: '이준호', company: '넥스트MSP' },
-  { id: 'choi-yuna', name: '최유나', company: '넥스트MSP' },
-  { id: 'jung-minjae', name: '정민재', company: '스카이브릿지' },
-]
+/**
+ * 서버에 보내는 answers 의 키(질문 라벨). 엔지니어가 프로젝트 화면에서 그대로 읽고 AI 입력에도
+ * "라벨: 답" 으로 들어가므로 짧아도 무슨 질문인지 알 수 있게 쓴다.
+ * 이미 등록된 서비스의 답변은 이 문구로 저장돼 있어서, 바꾸면 내 서비스 화면의 표시 순서가 어긋난다.
+ */
+export const QUESTION_LABEL: Record<FieldKey, string> = {
+  concern: '검토를 신청한 고민',
+  outcomes: '검토 후 받고 싶은 결과',
+  priority: '결과 우선순위',
+  costGoal: '월 클라우드 비용 목표',
+  serviceName: '서비스 이름',
+  serviceIntro: '서비스 소개',
+  dailyUsers: '하루 사용자 수',
+  peakTime: '사용자가 몰리는 때',
+  growth: '1년 뒤 예상 사용자',
+  downtimeImpact: '서비스가 멈췄을 때 영향',
+  tolerance: '허용할 수 있는 중단 범위',
+  personalData: '다루는 개인정보',
+  compliance: '지켜야 하는 규정·인증',
+  changeAllowance: '검토하면서 바꿔도 되는 범위',
+  serverOps: '서버 관리 주체',
+  frozenParts: '절대 바꾸면 안 되는 부분',
+}
 
 /* ---------- 수집한 정보 패널 (대화 화면 오른쪽) ---------- */
 

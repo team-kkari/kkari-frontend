@@ -27,13 +27,11 @@ export function validateSignUp(values: SignUpValues): SignUpErrors {
   else if (!isEmail(values.email)) errors.email = '이메일 형식이 올바르지 않아요.'
 
   if (!values.password) errors.password = '비밀번호를 입력해 주세요.'
-  else if (
-    values.password.length < 8 ||
-    values.password.length > 64 ||
-    !/[A-Za-z]/.test(values.password) ||
-    !/\d/.test(values.password)
-  )
-    errors.password = '8~64자, 영문과 숫자를 포함해 주세요.'
+  else if (values.password.length < 8 || values.password.length > 64)
+    errors.password = '비밀번호는 8~64자로 입력해 주세요.'
+  // 백엔드 규칙: 영문과 숫자를 각각 포함해야 한다
+  else if (!/[A-Za-z]/.test(values.password) || !/\d/.test(values.password))
+    errors.password = '비밀번호에는 영문과 숫자를 모두 포함해 주세요.'
 
   if (!values.passwordConfirm) errors.passwordConfirm = '비밀번호를 한 번 더 입력해 주세요.'
   else if (values.passwordConfirm !== values.password)
