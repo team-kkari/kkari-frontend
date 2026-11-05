@@ -1,0 +1,83 @@
+.view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  height: 100%;
+  padding: 1.25rem 3.5rem;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  text-align: center;
+  line-height: normal;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-gray-100);
+}
+
+.description {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-gray-50);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 26.25rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 1.5rem 1.75rem;
+  border-radius: var(--radius-large);
+  background: var(--color-gray-0);
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1rem;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.stepMain {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.active {
+  font-weight: 500;
+}
+
+.pending {
+  color: var(--color-gray-30);
+}
+
+.meta {
+  font-size: 0.8125rem;
+  color: var(--color-gray-50);
+}

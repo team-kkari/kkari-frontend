@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* CSS Module(로그인·회원가입·의뢰 접수 화면)이 쓰는 변수. Tailwind로 전환하면 @theme으로 옮기고 지운다 */
+@import './tokens.css';
 
 /* 피그마 Wayco-design 변수와 1:1 로 맞춘 디자인 토큰 */
 @theme {

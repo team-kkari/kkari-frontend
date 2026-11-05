@@ -1,0 +1,30 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.875rem 0;
+  border: none;
+  border-radius: var(--radius-small);
+  background: var(--color-main-60);
+  color: var(--color-white);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--color-main-70);
+}
+
+.button:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

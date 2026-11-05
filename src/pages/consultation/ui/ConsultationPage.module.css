@@ -1,0 +1,10 @@
+.page {
+  display: flex;
+  gap: 1.875rem;
+  /* 추천 결과 화면과 같이 80rem(1280px)보다 좁아지면 줄이지 않고 가로로 스크롤한다 */
+  min-width: 80rem;
+  height: 100vh;
+  min-height: 37.5rem;
+  padding: 1.25rem;
+  background: var(--color-background);
+}
