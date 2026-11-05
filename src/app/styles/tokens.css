@@ -1,0 +1,40 @@
+/*
+ * CSS Module(로그인·회원가입·의뢰 접수 화면)용 디자인 토큰.
+ * index.css의 @theme은 Tailwind 클래스에서 쓴 변수만 CSS로 내보내므로,
+ * CSS Module이 직접 var()로 참조하는 값은 여기서 항상 정의해 둔다.
+ * Tailwind로 전환하면 @theme으로 합치고 이 파일은 지운다.
+ */
+:root {
+  --color-white: #ffffff;
+
+  --color-gray-0: #f9fafb;
+  --color-gray-10: #e8eaed;
+  --color-gray-20: #ccd1d7;
+  --color-gray-30: #b0b8c1;
+  --color-gray-40: #8d98a5;
+  --color-gray-50: #707e8f;
+  --color-gray-100: #101214;
+
+  --color-main-10: #e5effe;
+  --color-main-50: #3a7de4;
+  --color-main-60: #215fbc;
+  --color-main-70: #1a4c97;
+  --color-main-80: #0b326c;
+  --color-main-90: #082147;
+  --color-main-100: #02102b;
+
+  /* 워크스페이스 배경 (디자인에 토큰 없이 쓰인 값) */
+  --color-background: #f2f7fb;
+  /* 카드·선택 박스 배경 (디자인에 토큰 없이 쓰인 값) */
+  --color-background-subtle: #eff4f9;
+
+  /* 디자인에 에러 색이 없어 임시로 정함 */
+  --color-red-50: #e5484d;
+  --color-red-0: #fff1f1;
+
+  --radius-small: 0.5rem;
+  --radius-medium: 0.75rem;
+  --radius-large: 1rem;
+  --radius-xlarge: 1.25rem;
+  --radius-circle: 62.4375rem;
+}
