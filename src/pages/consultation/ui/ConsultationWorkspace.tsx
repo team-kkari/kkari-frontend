@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import {
+  groupAnswers,
   projectAnswersPath,
   projectQueries,
   projectResultPath,
@@ -82,6 +83,8 @@ function ConsultationRoom({
 
   if (consultation.loading) return <Status message="대화를 불러오는 중…" />
 
+  const answerSections = groupAnswers(project.answers)
+
   return (
     <div className={styles.workspace}>
       <main className={styles.main}>
@@ -94,12 +97,11 @@ function ConsultationRoom({
         ) : (
           <ChatView
             title={project.companyName}
-            // 고객이 창구에서 접수한 서비스(답변이 있음)는 엔지니어가 그 답변을 바로 볼 수 있게 한다
             answersHref={
-              project.answers && Object.keys(project.answers).length > 0
-                ? projectAnswersPath(project.projectId)
-                : undefined
+              answerSections.length > 0 ? projectAnswersPath(project.projectId) : undefined
             }
+            serviceName={project.serviceName}
+            answerSections={answerSections}
             projectId={project.projectId}
             messages={consultation.messages}
             info={consultation.info}

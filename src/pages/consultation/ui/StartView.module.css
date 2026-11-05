@@ -97,3 +97,52 @@
   font-size: 0.875rem;
   color: #b42318;
 }
+
+.infra {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 40rem;
+}
+
+.infraOption {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid #d9dde3;
+  border-radius: 0.75rem;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.infraOption:hover:not(:disabled) {
+  border-color: var(--color-main-60);
+}
+
+.infraOption:focus-visible {
+  outline: 2px solid #5892ec;
+  outline-offset: 2px;
+}
+
+.infraSelected {
+  border-color: var(--color-main-60);
+  background: #f2f7ff;
+}
+
+.infraLabel {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-gray-100);
+}
+
+.infraDescription {
+  font-size: 0.8125rem;
+  color: var(--color-gray-50);
+}

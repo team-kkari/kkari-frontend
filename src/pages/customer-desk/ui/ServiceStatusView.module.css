@@ -128,6 +128,22 @@
   color: var(--color-gray-50);
 }
 
+.resultLink {
+  align-self: flex-start;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-small);
+  background: var(--color-main-60);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+.resultLink:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}
+
 .answers {
   display: flex;
   flex-direction: column;

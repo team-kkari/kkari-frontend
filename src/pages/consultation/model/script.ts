@@ -27,6 +27,13 @@ export const SUGGESTIONS = [
 export const INFRA_INTRO =
   '필요한 정보를 모두 모았어요. 이어서 고객사 AWS 계정을 연결해 인프라를 분석할게요.'
 
+/**
+ * 이미 AWS 인프라를 구축했다고 고른 의뢰는 대화보다 먼저 계정을 연결한다.
+ * 구성·사용률·비용을 자동으로 가져오면 AI가 물어볼 것이 가치(우선순위)와 예산 정도로 줄어든다
+ */
+export const INFRA_FIRST_INTRO =
+  '이미 구축한 AWS 인프라가 있으시군요. 먼저 고객사 AWS 계정을 연결해 주세요. 구성·사용률·비용은 자동으로 가져와서 질문을 줄일게요.'
+
 /** AWS 분석이 끝난 뒤 보충 자료로 Terraform state 를 올릴지 묻는다 (선택) */
 export const TERRAFORM_INTRO =
   'AWS 분석을 마쳤어요. Terraform state 파일이 있으면 함께 올려 주세요.'

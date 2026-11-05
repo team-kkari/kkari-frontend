@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router'
 import {
   CUSTOMER_SERVICE_STAGE_LABEL,
   customerServiceQueries,
@@ -19,13 +20,13 @@ const STAGES: { stage: CustomerServiceStage; description: string }[] = [
 const NOTICE: Record<CustomerServiceStage, string> = {
   RECEIVED: '접수됐어요. 담당 엔지니어가 내용을 확인하고 AWS 연결 등 다음 단계를 진행해요',
   ANALYZED: '현재 인프라 분석이 끝났어요. 담당 엔지니어가 추천 구조를 준비하고 있어요',
-  RECOMMENDED: '추천 구조가 준비됐어요. 담당 엔지니어가 결과를 안내해 드려요',
+  RECOMMENDED: '추천 구조가 준비됐어요. 아래에서 추천 결과를 확인해 보세요',
 }
 
 const RESULT_DESCRIPTION: Record<CustomerServiceStage, string> = {
   RECEIVED: '추천이 끝나면 여기에서 결과를 볼 수 있어요',
   ANALYZED: '추천이 끝나면 여기에서 결과를 볼 수 있어요',
-  RECOMMENDED: '담당 엔지니어가 결과를 정리하고 있어요. 곧 여기에서 볼 수 있어요',
+  RECOMMENDED: '추천 아키텍처와 예상 비용, 구성도를 확인할 수 있어요',
 }
 
 /** 접수 후 진행 상태 (G-6) */
@@ -109,6 +110,11 @@ export function ServiceStatusView({ serviceId }: { serviceId: number }) {
       <section className={[styles.card, styles.resultCard].join(' ')}>
         <h2 className={styles.cardTitle}>추천 결과</h2>
         <p className={styles.resultDescription}>{RESULT_DESCRIPTION[stage]}</p>
+        {stage === 'RECOMMENDED' && (
+          <Link to={`/desk/services/${serviceId}/result`} className={styles.resultLink}>
+            추천 결과 보기
+          </Link>
+        )}
       </section>
 
       {rows.length > 0 && (

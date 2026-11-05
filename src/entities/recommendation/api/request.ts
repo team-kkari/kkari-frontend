@@ -32,15 +32,16 @@ function parseJson(text: string): unknown {
 }
 
 /**
- * `GET /v1/projects/{projectId}/architectures`.
+ * 추천 결과 조회. 엔지니어 `GET /v1/projects/{projectId}/architectures` 와
+ * 고객 `GET /v1/customer/services/{serviceId}/architectures` 가 같은 응답을 준다.
  *
  * 공통 `request` 는 오류 본문에서 상태·코드·메시지만 남기는데, AR002 의 latestJob 은 본문에만 있다.
  * 그래서 이 호출만 직접 fetch 해서 AR002 를 latestJob 이 담긴 ArchitectureNotFoundError 로 던진다
  * (ApiError 이므로 기존 `isArchitectureNotFound` 판정은 그대로 맞는다). 인증·401 처리와 그 밖의 오류는 `request` 와 같다.
  */
-export async function requestArchitectures(projectId: number): Promise<ArchitectureResponseDto> {
+export async function requestArchitectures(path: string): Promise<ArchitectureResponseDto> {
   const token = getAccessToken()
-  const res = await fetch(`${env.API_BASE_URL}/v1/projects/${projectId}/architectures`, {
+  const res = await fetch(`${env.API_BASE_URL}${path}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   })
   const body = parseJson(await res.text())
