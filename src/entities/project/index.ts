@@ -1,6 +1,7 @@
 export type {
   AwsConnectionStatus,
   CreateProjectBody,
+  InfraStatus,
   ProjectDetail,
   ProjectStage,
   ProjectSummary,

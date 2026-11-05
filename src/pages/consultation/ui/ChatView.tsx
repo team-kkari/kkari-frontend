@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import type { AnswerSection } from '@/entities/project'
-import { waycoMarkIcon } from '@/shared/ui'
+import { BoldText, waycoMarkIcon } from '@/shared/ui'
 import type { ChatMessage, CollectedInfo, ConnectResult } from '../model/types'
 import { AwsConnectCard } from './AwsConnectCard'
 import { ChoiceCardView } from './ChoiceCardView'
@@ -104,7 +104,9 @@ export function ChatView({
           ) : (
             <div key={message.id} className={styles.aiGroup}>
               {message === lastMessage && !isAiTyping && <AiMark />}
-              <p className={styles.aiText}>{message.text}</p>
+              <p className={styles.aiText}>
+                <BoldText>{message.text}</BoldText>
+              </p>
               {message.choice && (
                 <ChoiceCardView
                   choice={message.choice}
