@@ -1,5 +1,11 @@
 export type InfoKey =
-  'customer' | 'request' | 'priority' | 'budget' | 'infraConnection' | 'infraAnalysis'
+  | 'customer'
+  | 'request'
+  | 'priority'
+  | 'budget'
+  | 'principles'
+  | 'infraConnection'
+  | 'infraAnalysis'
 
 export type CollectedInfo = Partial<Record<InfoKey, string>>
 

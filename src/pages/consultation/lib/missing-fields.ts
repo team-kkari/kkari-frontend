@@ -19,6 +19,7 @@ const FIELD_LABEL: Record<string, string> = {
   constraints: '제약',
   operations: '운영 체계',
   security: '보안 요구',
+  designPrinciples: '설계 원칙·고려사항',
 }
 
 /** 옛 백엔드는 snake_case(`monthly_budget`)로 주므로 camelCase 로 맞춘다 */
