@@ -1,12 +1,12 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
-import { HomePage } from '@/pages/home'
+import { ConsultationPage } from '@/pages/consultation'
 import { LoginPage } from '@/pages/login'
 import { SignUpPage } from '@/pages/signup'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomePage />,
+    element: <ConsultationPage />,
   },
   {
     path: '/login',

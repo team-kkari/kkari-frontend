@@ -1,0 +1,136 @@
+.view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  height: 100%;
+  padding: 20px 56px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  line-height: normal;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-gray-100);
+}
+
+.description {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-gray-50);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 420px;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px 28px;
+  border-radius: var(--radius-large);
+  background: var(--color-gray-0);
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.stepMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.active {
+  font-weight: 500;
+}
+
+.pending {
+  color: var(--color-gray-30);
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--color-gray-50);
+}
+
+/* [임시] 끝내기 버튼: 화면 맨 아래 */
+.tempFinish {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transform: translateX(-50%);
+  animation: fade-in 0.3s ease-out;
+}
+
+.finishButton {
+  width: 420px;
+  max-width: calc(100vw - 80px);
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-small);
+  background: var(--color-main-60);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.finishButton:hover {
+  background: var(--color-main-70);
+}
+
+.finishButton:focus-visible {
+  outline: 2px solid var(--color-main-60);
+  outline-offset: 2px;
+}
+
+.tempNote {
+  margin: 0;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--color-gray-40);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

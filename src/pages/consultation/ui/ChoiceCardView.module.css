@@ -1,0 +1,46 @@
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+fieldset:not(:disabled) .option:hover,
+.option:has(.radioInput:focus-visible),
+.selected {
+  border-color: var(--color-main-60);
+}
+
+fieldset:disabled .option {
+  cursor: default;
+}
+
+.radioInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: normal;
+  color: #000;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 13px;
+}

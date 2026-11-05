@@ -1,0 +1,145 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: var(--radius-medium);
+  background: var(--color-white);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.close {
+  display: flex;
+  padding: 4px;
+  margin: -4px;
+  border: none;
+  border-radius: var(--radius-small);
+  background: transparent;
+  cursor: pointer;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  border: none;
+  border-radius: var(--radius-small);
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+  color: #000;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: var(--color-background-subtle);
+  outline: none;
+}
+
+.option:hover .badge,
+.option:focus-visible .badge {
+  background: var(--color-white);
+}
+
+.option.other {
+  color: var(--color-gray-30);
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  background: var(--color-background-subtle);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-gray-50);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--color-main-60);
+  outline-offset: 2px;
+}
+
+/* '기타' 직접 입력 */
+.otherForm,
+.otherForm:hover {
+  background: var(--color-background-subtle);
+  cursor: text;
+}
+
+.otherForm .badge {
+  background: var(--color-white);
+}
+
+.otherInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+  color: #000;
+}
+
+.otherInput::placeholder {
+  color: var(--color-gray-30);
+}
+
+.send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--color-main-60);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.send:hover {
+  background: var(--color-main-70);
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--color-main-60);
+  outline-offset: 2px;
+}

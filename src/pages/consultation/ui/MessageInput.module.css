@@ -1,0 +1,98 @@
+.form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 10px 14px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-large);
+  background: var(--color-white);
+  transition: border-color 0.15s;
+}
+
+.form:focus-within {
+  border-color: var(--color-main-60);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: normal;
+  color: var(--color-gray-100);
+}
+
+.input::placeholder {
+  color: var(--color-gray-30);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.send {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--color-main-60);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s,
+    transform 0.1s;
+}
+
+.send:hover:not(:disabled) {
+  background: var(--color-main-70);
+}
+
+.send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--color-main-60);
+  outline-offset: 2px;
+}
+
+/* 보내기: 화살표가 위로 날아가고 아래에서 다시 올라온다 */
+.launch {
+  animation: launch 0.45s ease-in-out;
+}
+
+@keyframes launch {
+  0% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-28px);
+  }
+  46% {
+    transform: translateY(28px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.send:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch {
+    animation: none;
+  }
+}

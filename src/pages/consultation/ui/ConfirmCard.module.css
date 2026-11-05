@@ -1,0 +1,30 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 12px;
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  line-height: normal;
+}
+
+.label {
+  flex-shrink: 0;
+  width: 72px;
+  color: var(--color-gray-50);
+}
+
+.value {
+  min-width: 0;
+  margin: 0;
+  font-weight: 500;
+  color: var(--color-gray-100);
+  overflow-wrap: anywhere;
+}

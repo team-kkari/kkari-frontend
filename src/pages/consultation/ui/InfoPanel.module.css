@@ -1,0 +1,86 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex-shrink: 0;
+  width: 240px;
+  height: 100%;
+  padding: 30px;
+  overflow-y: auto;
+  border-radius: var(--radius-xlarge);
+  background: var(--color-white);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-size: 18px;
+  line-height: normal;
+}
+
+.title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: #000;
+}
+
+.count {
+  font-weight: 500;
+  color: var(--color-main-60);
+}
+
+.progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-circle);
+  background: var(--color-gray-10);
+}
+
+.bar {
+  height: 100%;
+  border-radius: var(--radius-circle);
+  background: var(--color-main-50);
+  transition: width 0.3s ease;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  line-height: normal;
+}
+
+.label,
+.labelPending {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-gray-100);
+}
+
+.labelPending {
+  color: var(--color-gray-30);
+}
+
+.value {
+  font-size: 14px;
+  color: var(--color-gray-50);
+  overflow-wrap: anywhere;
+}

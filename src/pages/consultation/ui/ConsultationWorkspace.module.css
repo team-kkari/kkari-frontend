@@ -1,0 +1,17 @@
+.workspace {
+  display: flex;
+  gap: 30px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
