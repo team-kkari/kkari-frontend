@@ -27,7 +27,7 @@ export function MspSidebar({ activeProjectId }: MspSidebarProps) {
 
   return (
     <aside className={styles.sidebar}>
-      <Link to={MSP_PROJECTS_PATH} className={styles.logo}>
+      <Link to="/" className={styles.logo} aria-label="Wayco 홈으로">
         Wayco
       </Link>
       <button type="button" className={styles.newRequest} onClick={() => navigate('/')}>
