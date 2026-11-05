@@ -1,0 +1,145 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+  width: 240px;
+  height: 100%;
+  padding: 30px;
+  overflow-y: auto;
+  border-radius: var(--radius-xlarge);
+  background: var(--color-main-100);
+  color: var(--color-white);
+}
+
+.logo {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.newButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-gray-100);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.newButton:hover {
+  background: var(--color-gray-10);
+}
+
+.divider {
+  width: 152px;
+  margin: 0;
+  border: none;
+  border-top: 1px solid #262b31;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-white);
+  line-height: normal;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.item:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.item.active {
+  background: var(--color-main-80);
+}
+
+.itemName {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gray-40);
+}
+
+.status.inProgress {
+  color: #5892ec;
+}
+
+.newButton:focus-visible,
+.item:focus-visible {
+  outline: 2px solid var(--color-main-50);
+  outline-offset: 2px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 8px 10px;
+}
+
+.avatar {
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+}
+
+.userName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logoutButton {
+  display: flex;
+  flex-shrink: 0;
+  padding: 4px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.logoutButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.logoutButton:focus-visible {
+  outline: 2px solid var(--color-main-50);
+  outline-offset: 2px;
+}
