@@ -9,4 +9,4 @@ export type {
 export { PROJECT_STAGE_LABEL } from './model/types'
 export { projectQueries } from './api/queries'
 export { createProject } from './api/create-project'
-export { projectPath, projectResultPath } from './lib/path'
+export { MSP_PROJECTS_PATH, projectAnswersPath, projectPath, projectResultPath } from './lib/path'
