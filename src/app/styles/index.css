@@ -1,31 +1,53 @@
-@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+@import 'tailwindcss';
+/* 로그인·회원가입 CSS Module이 쓰는 변수. Tailwind로 전환하면 @theme으로 옮기고 지운다 */
 @import './tokens.css';
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* 피그마 Wayco-design 변수와 1:1 로 맞춘 디자인 토큰 */
+@theme {
+  --font-sans:
+    'Pretendard Variable', Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gray-0: #f9fafb;
+  --color-gray-10: #e8eaed;
+  --color-gray-20: #ccd1d7;
+  --color-gray-40: #8d98a5;
+  --color-gray-50: #707e8f;
+  --color-gray-90: #262b31;
+  --color-gray-100: #101214;
+  --color-main-10: #e5effe;
+  --color-main-50: #3a7de4;
+  --color-main-60: #215fbc;
+  --color-main-80: #0b326c;
+  --color-main-100: #02102b;
+  --color-red-20: #c63939;
+  --color-canvas: #f2f7fb;
+
+  --radius-small: 8px;
+  --radius-tab: 10px;
+  --radius-medium: 12px;
+  --radius-large: 16px;
+  --radius-xlarge: 20px;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
 
-body {
-  font-family: var(--font-family-base);
-  color: var(--color-gray-100);
-  background: var(--color-white);
-  -webkit-font-smoothing: antialiased;
-}
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
 
-button,
-input {
-  font: inherit;
-  color: inherit;
-}
+  #root {
+    min-height: 100vh;
+  }
 
-#root {
-  min-height: 100vh;
+  button {
+    cursor: pointer;
+  }
 }
