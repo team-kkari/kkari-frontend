@@ -12,8 +12,8 @@ const router = createBrowserRouter([
     // 로그인한 사용자만 들어갈 수 있는 화면
     element: <RequireAuth />,
     children: [
-      { path: '/', element: <ConsultationPage /> },
-      { path: '/projects/:projectId', element: <ConsultationPage /> },
+      { path: '/', element: <ConsultationPage key="new" /> },
+      { path: '/projects/:projectId', element: <ConsultationPage key="project" /> },
       { path: '/projects/:projectId/result', element: <RecommendationResultPage /> },
     ],
   },

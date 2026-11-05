@@ -36,6 +36,8 @@ interface TerraformUploadCardProps {
   savedFile?: { name: string; size: number }
   /** 서버가 파일을 받아 구조를 읽는 데 성공하면 호출한다 */
   onStart: (file: File) => void
+  /** 올리지 않고 넘어간다 (Terraform 은 선택 입력) */
+  onSkip?: () => void
 }
 
 /**
@@ -47,6 +49,7 @@ export function TerraformUploadCard({
   done,
   savedFile,
   onStart,
+  onSkip,
 }: TerraformUploadCardProps) {
   const upload = useUploadTerraform(projectId)
   const [pickedFile, setPickedFile] = useState<File | null>(null)
@@ -159,6 +162,11 @@ export function TerraformUploadCard({
       >
         {isUploading ? '분석 중...' : upload.isError ? '다시 시도' : '분석 시작'}
       </button>
+      {!done && onSkip && (
+        <button type="button" className={styles.skip} disabled={isUploading} onClick={onSkip}>
+          건너뛰기
+        </button>
+      )}
     </div>
   )
 }

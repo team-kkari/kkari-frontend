@@ -26,6 +26,7 @@ interface ChatViewProps {
   onSend: (text: string) => void
   onConfirmChoice: (messageId: string, optionId: string) => void
   onCompleteConnect: (messageId: string, answer: string, result: ConnectResult) => void
+  onSkipConnect: (messageId: string) => void
   onConfirmDesign: (messageId: string) => void
 }
 
@@ -43,6 +44,7 @@ export function ChatView({
   onSend,
   onConfirmChoice,
   onCompleteConnect,
+  onSkipConnect,
   onConfirmDesign,
 }: ChatViewProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -112,6 +114,7 @@ export function ChatView({
                   projectId={projectId}
                   done={!!message.connect.done}
                   savedFile={message.connect.result?.file}
+                  onSkip={() => onSkipConnect(message.id)}
                   onStart={(file) =>
                     onCompleteConnect(message.id, `Terraform · ${file.name}`, {
                       file: { name: file.name, size: file.size },

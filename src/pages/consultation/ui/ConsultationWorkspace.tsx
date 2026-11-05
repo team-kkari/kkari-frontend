@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { projectQueries, projectResultPath, type ProjectDetail } from '@/entities/project'
 import { recommendationQueries } from '@/entities/recommendation'
@@ -20,16 +21,16 @@ export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationW
   // 백엔드가 추천 뒤에도 단계를 ANALYZED 로 두므로(RECOMMENDED 로 올리는 곳이 없음), 이미 만든 결과가 있는지 직접 본다.
   // 결과가 없으면 AR002 로 실패하고 그대로 상담을 이어간다
   const analyzed = project.data?.stage === 'ANALYZED'
-  const existingResult = useQuery({
-    ...recommendationQueries.result(projectId),
-    enabled: analyzed,
-    retry: false,
-  })
+  const existingResult = useQuery({ ...recommendationQueries.exists(projectId), enabled: analyzed })
 
-  if (project.isPending || (analyzed && existingResult.isPending)) {
-    return <Status message="의뢰를 불러오는 중…" />
-  }
-  if (project.isError) {
+  // 처음 불러올 때만 상태 화면을 보여준다. 이후 재조회(분석 직후 단계 변경 등)로 방이 다시 만들어지면
+  // 카드·입력 상태가 모두 사라지기 때문에, 한 번 열린 방은 유지한다
+  const [opened, setOpened] = useState(false)
+  const loading = project.isPending || (analyzed && existingResult.isPending)
+  if (!loading && !opened) setOpened(true)
+
+  if (loading && !opened) return <Status message="의뢰를 불러오는 중…" />
+  if (project.isError && !project.data) {
     return (
       <Status
         message="의뢰를 불러오지 못했어요. 왼쪽 목록에서 다시 골라 주세요."
@@ -37,6 +38,7 @@ export function ConsultationWorkspace({ projectId, firstMessage }: ConsultationW
       />
     )
   }
+  if (!project.data) return <Status message="의뢰를 불러오는 중…" />
   // 추천이 끝난 의뢰는 대화 대신 결과를 보여준다
   if (project.data.stage === 'RECOMMENDED' || existingResult.isSuccess) {
     return <Navigate to={projectResultPath(projectId)} replace />
@@ -80,6 +82,7 @@ function ConsultationRoom({
             onSend={consultation.sendMessage}
             onConfirmChoice={consultation.confirmChoice}
             onCompleteConnect={consultation.completeConnect}
+            onSkipConnect={consultation.skipConnect}
             onConfirmDesign={consultation.confirmDesign}
           />
         )}

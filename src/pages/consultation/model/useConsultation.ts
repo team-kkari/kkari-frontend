@@ -26,7 +26,12 @@ const errorText = (e: unknown) =>
 function toChatMessage(m: ChatMessageDto): ChatMessage {
   return m.role === 'USER'
     ? { id: `s${m.id}`, role: 'user', text: m.content }
-    : { id: `s${m.id}`, role: 'ai', text: m.content, quickReplies: m.quickReplies ?? undefined }
+    : {
+        id: `s${m.id}`,
+        role: 'ai',
+        text: m.content,
+        quickReplies: m.quickReplies?.length ? m.quickReplies : undefined,
+      }
 }
 
 /** 전송 응답을 기록 캐시에 합친다 (같은 id 는 한 번만) */
@@ -67,8 +72,11 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
   const [cardError, setCardError] = useState<string | null>(null)
   const [awsDone, setAwsDone] = useState(false)
   const [terraformDone, setTerraformDone] = useState(false)
+  // 카드가 처음 붙은 시점의 서버 메시지 개수. 그 뒤에 오가는 대화는 카드 아래에 보여준다
+  const [anchor, setAnchor] = useState(0)
   const cardsStarted = useRef(false)
   const chatStarted = useRef(false)
+  const lastConfirmId = useRef<string | null>(null)
 
   const send = useMutation({
     mutationFn: (content?: string) => sendChatMessage(projectId, content),
@@ -97,14 +105,23 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
 
   // 대화 기록이 비어 있으면 AI 가 먼저 말을 걸게 한다 (시작 화면의 첫 메시지가 있으면 그걸로)
   useEffect(() => {
-    if (!history.isSuccess || chatStarted.current || send.isPending) return
+    // 캐시에 남아 있던 낡은 기록(빈 목록)만 보고 첫 메시지를 또 보내지 않게, 마운트 뒤 최신 기록을 받은 다음에 판단한다
+    if (!history.isSuccess || !history.isFetchedAfterMount || history.isFetching) return
+    if (chatStarted.current || send.isPending) return
     if (history.data.messages.length > 0) {
       chatStarted.current = true
       return
     }
     chatStarted.current = true
     send.mutate(firstMessage)
-  }, [history.isSuccess, history.data, firstMessage, send])
+  }, [
+    history.isSuccess,
+    history.isFetchedAfterMount,
+    history.isFetching,
+    history.data,
+    firstMessage,
+    send,
+  ])
 
   const ready = history.data?.ready ?? false
 
@@ -112,13 +129,16 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
   useEffect(() => {
     if (!ready || cardsStarted.current || send.isPending) return
     cardsStarted.current = true
+    setAnchor(
+      queryClient.getQueryData(chatQueries.history(projectId).queryKey)?.messages.length ?? 0,
+    )
     const analyzed = project.stage !== 'RECEIVED'
     setCards(
       analyzed
         ? [{ id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} }]
         : [{ id: nextLocalId(), role: 'ai', text: INFRA_INTRO, connect: { kind: 'aws' } }],
     )
-  }, [ready, send.isPending, project.stage])
+  }, [ready, send.isPending, project.stage, queryClient, projectId])
 
   const updateCard = (messageId: string, update: (m: AiMessage) => AiMessage) => {
     setCards((prev) => prev.map((m) => (m.id === messageId && m.role === 'ai' ? update(m) : m)))
@@ -175,7 +195,19 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     ])
   }
 
+  /** Terraform 업로드 카드를 건너뛴다 (선택 입력이라 올리지 않아도 설계할 수 있다) */
+  const skipConnect = (messageId: string) => {
+    updateCard(messageId, (m) => (m.connect ? { ...m, connect: { ...m.connect, done: true } } : m))
+    setCards((prev) => [
+      ...prev,
+      { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
+    ])
+  }
+
   const confirmDesign = (messageId: string) => {
+    // 수정 요청을 보내는 중이면 갱신 전 요구사항이 저장되므로, 응답을 받은 뒤에 누르게 한다
+    if (send.isPending || saveReq.isPending) return
+    lastConfirmId.current = messageId
     setCardError(null)
     updateCard(messageId, (m) => (m.confirm ? { ...m, confirm: { done: true } } : m))
     saveReq.mutate(undefined, {
@@ -187,21 +219,23 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     })
   }
 
-  const sendMessage = useCallback((text: string) => send.mutate(text), [send])
-
-  const retry = () => {
-    setCardError(null)
-    send.mutate(undefined)
-  }
+  const sendMessage = useCallback(
+    (text: string) => {
+      setCardError(null)
+      send.mutate(text)
+    },
+    [send],
+  )
 
   // 서버 기록 + 전송 중인 내 메시지 + 화면 카드
   const messages = useMemo<ChatMessage[]>(() => {
     const list = (history.data?.messages ?? []).map(toChatMessage)
+    const after = list.slice(anchor)
     if (send.isPending && send.variables) {
-      list.push({ id: 'pending-user', role: 'user', text: send.variables })
+      after.push({ id: 'pending-user', role: 'user', text: send.variables })
     }
-    return [...list, ...cards]
-  }, [history.data, send.isPending, send.variables, cards])
+    return [...list.slice(0, anchor), ...cards, ...after]
+  }, [history.data, send.isPending, send.variables, cards, anchor])
 
   const lastCard = cards[cards.length - 1]
   const awaitingCard =
@@ -231,6 +265,15 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
   const serverMessages = history.data?.messages ?? []
   const lastServer = serverMessages[serverMessages.length - 1]
   const needsRetry = !send.isPending && !!lastServer && lastServer.role === 'USER'
+  const retry = () => {
+    if (cardError && lastConfirmId.current) {
+      confirmDesign(lastConfirmId.current)
+      return
+    }
+    setCardError(null)
+    // 서버에 저장되지 못한 전송이 실패했으면 같은 내용을 다시 보내고, AI 응답만 실패했으면 응답만 다시 요청한다
+    send.mutate(needsRetry ? undefined : send.variables)
+  }
   const error =
     cardError ??
     (history.isError ? errorText(history.error) : null) ??
@@ -250,6 +293,7 @@ export function useConsultation({ project, firstMessage }: UseConsultationOption
     sendMessage,
     confirmChoice,
     completeConnect,
+    skipConnect,
     confirmDesign,
   }
 }

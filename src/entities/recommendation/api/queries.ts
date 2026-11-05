@@ -15,17 +15,30 @@ const PRIORITY_LABEL: Record<string, string> = {
 export const isArchitectureNotFound = (error: unknown) =>
   error instanceof ApiError && error.code === 'AR002'
 
+const fetchResult = async (projectId: number) =>
+  toRecommendationResult(
+    await request<ArchitectureResponseDto>(`/v1/projects/${projectId}/architectures`),
+    projectId,
+  )
+
 export const recommendationQueries = {
   all: () => ['recommendations'] as const,
+  /**
+   * 이미 만든 추천 결과가 있는지만 본다 (없으면 AR002 로 실패). 생성 훅의 result 와 키를 나눠서,
+   * 설계가 끝나는 순간 이 쿼리의 상태가 화면 전환을 일으키지 않게 한다.
+   */
+  exists: (projectId: number) =>
+    queryOptions({
+      queryKey: [...recommendationQueries.all(), 'exists', projectId],
+      queryFn: () => fetchResult(projectId),
+      enabled: Number.isInteger(projectId),
+      retry: false,
+    }),
   /** 마지막으로 성공한 추천 아키텍처. 생성 전이면 AR002 오류 */
   result: (projectId: number) =>
     queryOptions({
       queryKey: [...recommendationQueries.all(), 'result', projectId],
-      queryFn: async () =>
-        toRecommendationResult(
-          await request<ArchitectureResponseDto>(`/v1/projects/${projectId}/architectures`),
-          projectId,
-        ),
+      queryFn: () => fetchResult(projectId),
       // 주소의 숫자가 아닌 값(NaN)으로는 호출하지 않는다
       enabled: Number.isInteger(projectId),
       // 4xx(생성 전, 권한 없음 등)는 다시 해도 같다
