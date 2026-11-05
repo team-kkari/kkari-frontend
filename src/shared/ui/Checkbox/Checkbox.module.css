@@ -1,0 +1,36 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.box {
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.input:focus-visible + .box {
+  outline: 2px solid var(--color-main-60);
+  outline-offset: 2px;
+}
+
+.box.invalid {
+  outline: 1.5px solid var(--color-red-50);
+  outline-offset: -1px;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--color-gray-100);
+}
