@@ -336,6 +336,7 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
     customer: profile?.companyName || project.companyName,
     request: profile?.goal || profile?.workload || undefined,
     priority: priorities || undefined,
+    principles: profile?.designPrinciples?.trim() || undefined,
     budget: formatBudget(profile?.monthlyBudget, profile?.currency),
     infraConnection:
       infraStatus === 'NONE'
