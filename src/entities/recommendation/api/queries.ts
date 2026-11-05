@@ -32,11 +32,8 @@ export function latestJobOf(
   return data?.latestJob ?? null
 }
 
-const fetchResult = async (projectId: number) =>
-  toRecommendationResult(
-    await requestArchitectures(`/v1/projects/${projectId}/architectures`),
-    projectId,
-  )
+const fetchResult = async (path: string, id: number) =>
+  toRecommendationResult(await requestArchitectures(path), id)
 
 /** 4xx(생성 전, 권한 없음 등)는 다시 해도 같다 */
 const retryServerError = (failureCount: number, error: Error) =>
@@ -51,7 +48,7 @@ export const recommendationQueries = {
   exists: (projectId: number) =>
     queryOptions({
       queryKey: [...recommendationQueries.all(), 'exists', projectId],
-      queryFn: () => fetchResult(projectId),
+      queryFn: () => fetchResult(`/v1/projects/${projectId}/architectures`, projectId),
       enabled: Number.isInteger(projectId),
       retry: false,
       // 진행 중인 설계 작업(latestJob)으로 상담 화면을 열기 때문에, 다시 열 때 낡은 값을 쓰지 않게 캐시를 남기지 않는다
@@ -61,7 +58,7 @@ export const recommendationQueries = {
   result: (projectId: number) =>
     queryOptions({
       queryKey: [...recommendationQueries.all(), 'result', projectId],
-      queryFn: () => fetchResult(projectId),
+      queryFn: () => fetchResult(`/v1/projects/${projectId}/architectures`, projectId),
       // 주소의 숫자가 아닌 값(NaN)으로는 호출하지 않는다
       enabled: Number.isInteger(projectId),
       retry: retryServerError,
@@ -70,11 +67,7 @@ export const recommendationQueries = {
   customerResult: (serviceId: number) =>
     queryOptions({
       queryKey: [...recommendationQueries.all(), 'customer-result', serviceId],
-      queryFn: async () =>
-        toRecommendationResult(
-          await requestArchitectures(`/v1/customer/services/${serviceId}/architectures`),
-          serviceId,
-        ),
+      queryFn: () => fetchResult(`/v1/customer/services/${serviceId}/architectures`, serviceId),
       enabled: Number.isInteger(serviceId),
       retry: retryServerError,
     }),

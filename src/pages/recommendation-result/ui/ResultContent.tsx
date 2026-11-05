@@ -15,13 +15,15 @@ interface ResultContentProps {
   result: UseQueryResult<RecommendationResult>
   /** 아직 추천 아키텍처가 없을(AR002) 때 안내 */
   notFound: { title: string; description: string }
+  /** 설계는 끝났지만 후보가 하나도 없을 때 안내 */
+  empty: { title: string; description: string }
   title: string
   /** "비용 > 성능" 처럼 이은 우선순위. 모르면 빈 문자열 */
   priority: string
 }
 
 /** 추천 결과 조회의 로딩·없음·오류 안내, 결과가 있으면 결과 화면 */
-export function ResultContent({ result, notFound, title, priority }: ResultContentProps) {
+export function ResultContent({ result, notFound, empty, title, priority }: ResultContentProps) {
   if (result.isPending) {
     return <Notice title="추천 결과를 불러오는 중…" />
   }
@@ -51,12 +53,7 @@ export function ResultContent({ result, notFound, title, priority }: ResultConte
   }
 
   if (result.data.recommendations.length === 0) {
-    return (
-      <Notice
-        title="추천 아키텍처가 비어 있어요"
-        description="생성은 끝났지만 보여줄 후보가 없어요. 설계를 다시 요청해 주세요."
-      />
-    )
+    return <Notice title={empty.title} description={empty.description} />
   }
 
   return (

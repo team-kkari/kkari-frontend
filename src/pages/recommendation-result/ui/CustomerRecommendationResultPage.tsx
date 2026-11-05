@@ -49,6 +49,10 @@ function ServiceResult({ serviceId }: { serviceId: number }) {
         title: '아직 추천 결과가 없어요',
         description: '추천이 끝나면 여기에서 결과를 볼 수 있어요',
       }}
+      empty={{
+        title: '추천 후보가 아직 없어요',
+        description: '담당 엔지니어가 결과를 다시 준비하고 있어요',
+      }}
       title={service.data?.serviceName ?? '추천 아키텍처'}
       priority=""
     />

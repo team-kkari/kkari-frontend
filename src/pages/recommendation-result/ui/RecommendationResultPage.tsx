@@ -47,6 +47,10 @@ function ProjectResult({ projectId }: { projectId: number }) {
         title: '아직 추천 아키텍처가 없어요',
         description: '상담에서 인프라 분석을 마치고 아키텍처 설계를 요청하면 여기에 결과가 나와요.',
       }}
+      empty={{
+        title: '추천 아키텍처가 비어 있어요',
+        description: '생성은 끝났지만 보여줄 후보가 없어요. 설계를 다시 요청해 주세요.',
+      }}
       title={project.data?.companyName ?? '추천 아키텍처'}
       priority={priority.data ?? ''}
     />
