@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useLocation } from 'react-router'
 import { customerServiceQueries, registerService } from '@/entities/customer-service'
 import { engineerQueries } from '@/entities/engineer'
 import { userQueries } from '@/entities/user'
@@ -27,8 +28,11 @@ export function CustomerDeskPage() {
   const queryClient = useQueryClient()
   const logout = useLogout()
   const { data: me } = useQuery(userQueries.me())
-  /** 보고 있는 서비스(serviceId). 없으면 고객 창구(대화) */
-  const [serviceId, setServiceId] = useState<number>()
+  const location = useLocation()
+  /** 보고 있는 서비스(serviceId). 없으면 고객 창구(대화). 추천 결과 화면에서 고르면 그 서비스로 연다 */
+  const [serviceId, setServiceId] = useState(
+    (location.state as { serviceId?: number } | null)?.serviceId,
+  )
 
   // 제출하면 목록을 다시 받고 방금 접수한 서비스의 진행 상태 화면으로 보낸다
   const register = useMutation({
