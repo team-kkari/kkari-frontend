@@ -1,0 +1,5 @@
+export type { GlossaryTerm } from './model/terms'
+export { GLOSSARY } from './model/terms'
+export { findTermByIcon, segmentText } from './lib/segment'
+export { GlossaryText } from './ui/GlossaryText'
+export { TermTooltip } from './ui/TermTooltip'
