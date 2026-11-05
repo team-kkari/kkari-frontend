@@ -1,7 +1,7 @@
 export { request, requestJson } from './client'
 export { ApiError } from './errors'
 export { queryClient } from './query-client'
-export { getAccessToken, useSessionStore } from './session'
+export { getAccessToken, homePathOf, useSessionStore } from './session'
 export type { Session, UserRole } from './session'
 export { isJobFinished, jobQueries } from './job'
 export type { Job, JobStatus, JobStep, JobType } from './job'

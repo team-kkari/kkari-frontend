@@ -7,9 +7,17 @@ interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id
   label: string
   helperText?: string
   error?: string
+  variant?: 'outline' | 'filled'
 }
 
-export function TextField({ label, helperText, error, type = 'text', ...props }: TextFieldProps) {
+export function TextField({
+  label,
+  helperText,
+  error,
+  type = 'text',
+  variant = 'outline',
+  ...props
+}: TextFieldProps) {
   const id = useId()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const isPassword = type === 'password'
@@ -20,7 +28,11 @@ export function TextField({ label, helperText, error, type = 'text', ...props }:
       <label htmlFor={id} className={styles.label}>
         {label}
       </label>
-      <div className={[styles.box, error && styles.invalid].filter(Boolean).join(' ')}>
+      <div
+        className={[styles.box, variant === 'filled' && styles.filled, error && styles.invalid]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <input
           id={id}
           type={isPassword && isPasswordVisible ? 'text' : type}

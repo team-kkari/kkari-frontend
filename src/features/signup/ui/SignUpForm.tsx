@@ -19,12 +19,13 @@ const INITIAL_VALUES: SignUpValues = {
 }
 
 interface SignUpFormProps {
-  /** 가입에 성공하고 세션이 저장된 뒤 호출 */
+  role: 'customer' | 'engineer'
+  /** 가입에 성공하고 세션이 저장된 뒤 호출. 가입한 역할(role)을 함께 넘긴다 */
   onSuccess?: () => void
 }
 
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const { mutate, isPending, error, reset } = useSignUp()
+export function SignUpForm({ role, onSuccess }: SignUpFormProps) {
+  const { mutate, isPending, error, reset } = useSignUp(role)
   const [values, setValues] = useState(INITIAL_VALUES)
   const [errors, setErrors] = useState<SignUpErrors>({})
 
@@ -62,6 +63,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <TextField
         label="이름"
+        variant="filled"
         name="name"
         autoComplete="name"
         placeholder="이름을 입력하세요"
@@ -70,7 +72,8 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         onChange={(event) => update('name', event.target.value)}
       />
       <TextField
-        label="소속 회사"
+        label={role === 'customer' ? '회사명' : '소속 회사'}
+        variant="filled"
         name="companyName"
         autoComplete="organization"
         placeholder="회사명을 입력하세요"
@@ -80,6 +83,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       />
       <TextField
         label="이메일"
+        variant="filled"
         type="email"
         name="email"
         autoComplete="email"
@@ -90,17 +94,19 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       />
       <TextField
         label="비밀번호"
+        variant="filled"
         type="password"
         name="password"
         autoComplete="new-password"
         placeholder="비밀번호를 입력하세요"
-        helperText="8~64자로 입력해 주세요"
+        helperText="영문과 숫자를 포함해 8~64자로 입력해 주세요"
         value={values.password}
         error={errors.password}
         onChange={(event) => update('password', event.target.value)}
       />
       <TextField
         label="비밀번호 확인"
+        variant="filled"
         type="password"
         name="passwordConfirm"
         autoComplete="new-password"
@@ -133,7 +139,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         </p>
       )}
       <Button type="submit" disabled={isPending}>
-        {isPending ? '가입 중...' : '회원가입'}
+        {isPending ? '가입 중...' : '가입하기'}
       </Button>
     </form>
   )

@@ -1,0 +1,101 @@
+.roles {
+  display: flex;
+  gap: 1.25rem;
+  width: 100%;
+  height: 12.75rem;
+}
+
+.role {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  height: 100%;
+  padding: 1rem;
+  overflow: hidden;
+  border: 0.125rem solid transparent;
+  border-radius: var(--radius-small);
+  background: var(--color-gray-10);
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.role:hover,
+.role.selected {
+  border-color: var(--color-main-60);
+  background: var(--color-main-10);
+}
+
+.role:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.text strong {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-gray-100);
+}
+
+.text span {
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: var(--color-gray-50);
+}
+
+.illustration {
+  position: relative;
+  display: block;
+  flex: none;
+  align-self: center;
+  overflow: hidden;
+}
+
+.illustration img {
+  position: absolute;
+  width: 19.84375rem;
+  height: 13.3125rem;
+  max-width: none;
+}
+
+.customer {
+  width: 8.625rem;
+  height: 6.375rem;
+}
+
+.customer img {
+  top: -3.75rem;
+  left: -1.5rem;
+}
+
+.engineer {
+  width: 8.5rem;
+  height: 6.25rem;
+}
+
+.engineer img {
+  top: -3.6875rem;
+  left: -10.125rem;
+}
+
+@media (max-width: 30rem) {
+  .roles {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .role {
+    min-height: 10rem;
+  }
+}

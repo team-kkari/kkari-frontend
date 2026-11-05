@@ -38,4 +38,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   },
 }))
 
+/** 역할별 첫 화면. 엔지니어는 의뢰 상담, 고객은 고객 창구 */
+export const homePathOf = (role: UserRole) => (role === 'CUSTOMER' ? '/desk' : '/')
+
 export const getAccessToken = () => useSessionStore.getState().session?.accessToken ?? null

@@ -1,0 +1,25 @@
+.selection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.back {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-main-60);
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.back:focus-visible {
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.25rem;
+}
