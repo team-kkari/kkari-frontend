@@ -20,10 +20,18 @@
 }
 
 .logo {
+  align-self: flex-start;
   margin: 0;
+  color: inherit;
   font-size: 1.75rem;
   font-weight: 700;
   line-height: normal;
+  text-decoration: none;
+}
+
+.logo:focus-visible {
+  outline: 0.125rem solid var(--color-main-50);
+  outline-offset: 0.125rem;
 }
 
 .newButton {
