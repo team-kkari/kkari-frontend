@@ -3,12 +3,12 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 14px 0;
+  padding: 0.875rem 0;
   border: none;
   border-radius: var(--radius-small);
   background: var(--color-main-60);
   color: var(--color-white);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.5;
   cursor: pointer;
@@ -20,8 +20,8 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--color-main-60);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
 }
 
 .button:disabled {

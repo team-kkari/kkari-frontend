@@ -3,14 +3,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 0.625rem;
   width: 100%;
-  height: 108px;
-  padding: 10px;
-  border: 1px dashed var(--color-gray-20);
+  height: 6.75rem;
+  padding: 0.625rem;
+  border: 0.0625rem dashed var(--color-gray-20);
   border-radius: var(--radius-small);
   background: var(--color-white);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   line-height: normal;
   color: var(--color-gray-50);
@@ -30,17 +30,17 @@
 }
 
 .dropzone:focus-visible {
-  outline: 2px solid var(--color-main-60);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
 }
 
 .file {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  height: 70px;
-  padding: 10px 12px;
+  gap: 0.625rem;
+  height: 4.375rem;
+  padding: 0.625rem 0.75rem;
   border-radius: var(--radius-small);
   background: var(--color-white);
 }
@@ -48,7 +48,7 @@
 .fileMain {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   min-width: 0;
   height: 100%;
 }
@@ -60,9 +60,9 @@
   flex-shrink: 0;
   aspect-ratio: 1;
   height: 100%;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background: #cbcbcb;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 700;
   color: var(--color-white);
 }
@@ -70,14 +70,14 @@
 .fileText {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
   min-width: 0;
   line-height: normal;
 }
 
 .fileName {
   overflow: hidden;
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-gray-100);
   text-overflow: ellipsis;
@@ -85,20 +85,20 @@
 }
 
 .fileSize {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: #000;
 }
 
 .remove {
   display: flex;
   flex-shrink: 0;
-  padding: 4px;
+  padding: 0.25rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background: transparent;
   cursor: pointer;
 }
 
 .remove:focus-visible {
-  outline: 2px solid var(--color-main-60);
+  outline: 0.125rem solid var(--color-main-60);
 }

@@ -10,14 +10,14 @@
   flex-direction: column;
   justify-content: space-between;
   flex-shrink: 0;
-  width: min(700px, 46%);
-  padding: 56px 72px;
+  width: min(43.75rem, 46%);
+  padding: 3.5rem 4.5rem;
   background: var(--color-gray-0);
 }
 
 .logo {
   margin: 0;
-  font-size: 26px;
+  font-size: 1.625rem;
   font-weight: 700;
   line-height: 1.5;
   color: var(--color-main-90);
@@ -26,18 +26,18 @@
 .intro {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 1.75rem;
 }
 
 .headline {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .headlineTitle {
   margin: 0;
-  font-size: 36px;
+  font-size: 2.25rem;
   font-weight: 700;
   line-height: 1.2;
   color: var(--color-gray-100);
@@ -45,14 +45,14 @@
 
 .headlineDescription {
   margin: 0;
-  font-size: 16px;
+  font-size: 1rem;
   color: var(--color-gray-50);
 }
 
 .features {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0.875rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -61,14 +61,14 @@
 .feature {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 16px;
+  gap: 0.625rem;
+  font-size: 1rem;
   color: var(--color-gray-100);
 }
 
 .copyright {
   margin: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.5;
   color: var(--color-gray-30);
 }
@@ -80,41 +80,41 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
-  padding: 56px 24px;
+  padding: 3.5rem 1.5rem;
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem;
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .title {
   margin: 0;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-gray-100);
 }
 
 .description {
   margin: 0;
-  font-size: 16px;
+  font-size: 1rem;
   color: var(--color-gray-50);
 }
 
 .footer {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  font-size: 14px;
+  gap: 0.375rem;
+  font-size: 0.875rem;
   color: var(--color-gray-50);
 }
 
@@ -128,7 +128,7 @@
   text-decoration: underline;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 68.75rem) {
   .brand {
     display: none;
   }

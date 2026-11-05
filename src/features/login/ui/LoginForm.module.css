@@ -1,7 +1,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
   width: 100%;
 }
 
@@ -12,6 +12,6 @@
 }
 
 .findPassword {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-gray-50);
 }

@@ -1,12 +1,12 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
   width: 100%;
 }
 
 .label {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-gray-100);
 }
@@ -14,10 +14,10 @@
 .box {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0 14px 0 16px;
-  border: 1px solid var(--color-gray-20);
+  padding: 0 0.875rem 0 1rem;
+  border: 0.0625rem solid var(--color-gray-20);
   border-radius: var(--radius-small);
   background: var(--color-white);
   transition: border-color 0.15s;
@@ -34,11 +34,11 @@
 .input {
   flex: 1;
   min-width: 0;
-  padding: 13px 0;
+  padding: 0.8125rem 0;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.2;
   color: var(--color-gray-100);
 }
@@ -52,20 +52,20 @@
   flex-shrink: 0;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background: none;
   cursor: pointer;
 }
 
 .toggle:focus-visible {
-  outline: 2px solid var(--color-main-60);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--color-main-60);
+  outline-offset: 0.125rem;
 }
 
 .helper,
 .error {
   margin: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 

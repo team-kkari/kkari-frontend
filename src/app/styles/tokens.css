@@ -32,9 +32,9 @@
   --color-red-50: #e5484d;
   --color-red-0: #fff1f1;
 
-  --radius-small: 8px;
-  --radius-medium: 12px;
-  --radius-large: 16px;
-  --radius-xlarge: 20px;
-  --radius-circle: 999px;
+  --radius-small: 0.5rem;
+  --radius-medium: 0.75rem;
+  --radius-large: 1rem;
+  --radius-xlarge: 1.25rem;
+  --radius-circle: 62.4375rem;
 }
