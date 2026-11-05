@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useParams } from 'react-router'
+import { GlossaryText } from '@/entities/glossary'
 import { recommendationQueries, type RecommendationResult } from '@/entities/recommendation'
 import { CompareModal } from '@/features/compare-recommendations'
 import { icons } from '@/shared/ui'
@@ -42,7 +43,9 @@ function ResultView({ result }: { result: RecommendationResult }) {
 
         <div className="flex w-full shrink-0 gap-2.5 rounded-medium bg-main-10 px-4 py-3">
           <img src={icons.sparkle} alt="" width={16} height={16} className="shrink-0" />
-          <p className="m-0 flex-1 text-sm leading-normal text-gray-100">{result.summary}</p>
+          <p className="m-0 flex-1 text-sm leading-normal text-gray-100">
+            <GlossaryText text={result.summary} />
+          </p>
         </div>
 
         <ArchitectureCanvas

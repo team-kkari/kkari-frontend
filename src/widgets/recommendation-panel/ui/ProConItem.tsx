@@ -1,3 +1,5 @@
+import { GlossaryText } from '@/entities/glossary'
+
 interface ProConItemProps {
   text: string
   kind: 'pro' | 'con'
@@ -16,7 +18,7 @@ export function ProConItem({ text, kind }: ProConItemProps) {
         {isPro ? '+' : '−'}
       </span>
       <span className="min-w-0 flex-1 text-[13px] leading-normal break-keep text-gray-100">
-        {text}
+        <GlossaryText text={text} />
       </span>
     </li>
   )

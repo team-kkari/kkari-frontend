@@ -1,3 +1,5 @@
+import { GlossaryText } from '@/entities/glossary'
+
 interface MigrationStepsProps {
   steps: string[]
 }
@@ -13,7 +15,9 @@ export function MigrationSteps({ steps }: MigrationStepsProps) {
           <span className="mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-main-10 text-xs font-semibold text-main-60">
             {i + 1}
           </span>
-          <span className="text-[13px] leading-normal break-keep text-gray-100">{step}</span>
+          <span className="text-[13px] leading-normal break-keep text-gray-100">
+            <GlossaryText text={step} />
+          </span>
         </li>
       ))}
     </ol>
