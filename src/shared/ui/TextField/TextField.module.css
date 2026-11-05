@@ -31,6 +31,16 @@
   border-color: var(--color-red-50);
 }
 
+.box.filled {
+  border-color: transparent;
+  background: var(--color-gray-0);
+}
+
+.box.filled:focus-within {
+  border-color: var(--color-main-60);
+  background: var(--color-white);
+}
+
 .input {
   flex: 1;
   min-width: 0;
