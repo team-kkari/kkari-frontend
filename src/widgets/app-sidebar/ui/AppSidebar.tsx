@@ -1,4 +1,4 @@
-import { defaultAvatar, logoutIcon, plusIcon } from '@/shared/ui'
+import { defaultAvatar, logoutIcon, plusIcon, waycoLogo } from '@/shared/ui'
 import styles from './AppSidebar.module.css'
 
 export interface SidebarConsultation {
@@ -31,36 +31,38 @@ export function AppSidebar({
 }: AppSidebarProps) {
   return (
     <aside className={styles.sidebar}>
-      <p className={styles.logo}>Wayco</p>
-      <button type="button" className={styles.newButton} onClick={onNewConsultation}>
-        <img src={plusIcon} alt="" width={22} height={22} />새 의뢰 시작
-      </button>
-      <hr className={styles.divider} />
-      <nav aria-label="의뢰 목록">
-        <ul className={styles.list}>
-          {consultations.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className={[styles.item, item.id === activeId && styles.active]
-                  .filter(Boolean)
-                  .join(' ')}
-                aria-current={item.id === activeId ? 'page' : undefined}
-                onClick={() => onSelect?.(item.id)}
-              >
-                <span className={styles.itemName}>{item.name}</span>
-                <span
-                  className={[styles.status, item.status === 'in-progress' && styles.inProgress]
+      <img className={styles.logo} src={waycoLogo} alt="Wayco" />
+      <div className={styles.group}>
+        <button type="button" className={styles.newButton} onClick={onNewConsultation}>
+          <img src={plusIcon} alt="" width={22} height={22} />새 의뢰 시작
+        </button>
+        <hr className={styles.divider} />
+        <nav aria-label="의뢰 목록">
+          <ul className={styles.list}>
+            {consultations.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  className={[styles.item, item.id === activeId && styles.active]
                     .filter(Boolean)
                     .join(' ')}
+                  aria-current={item.id === activeId ? 'page' : undefined}
+                  onClick={() => onSelect?.(item.id)}
                 >
-                  {STATUS_LABEL[item.status]}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+                  <span className={styles.itemName}>{item.name}</span>
+                  <span
+                    className={[styles.status, item.status === 'in-progress' && styles.inProgress]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    {STATUS_LABEL[item.status]}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
       <div className={styles.user}>
         <img className={styles.avatar} src={defaultAvatar} alt="" width={30} height={30} />
         <span className={styles.userName}>{userName}</span>
