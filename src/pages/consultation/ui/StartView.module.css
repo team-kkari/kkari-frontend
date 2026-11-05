@@ -1,4 +1,7 @@
 .view {
+  /* 사이드바 옆 남은 폭을 모두 차지해야 안의 내용이 가운데로 온다 */
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
