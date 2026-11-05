@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router'
 import { waycoMarkIcon } from '@/shared/ui'
 import type { ChatMessage, CollectedInfo, ConnectResult } from '../model/types'
 import { AwsConnectCard } from './AwsConnectCard'
@@ -11,6 +12,8 @@ import styles from './ChatView.module.css'
 
 interface ChatViewProps {
   title: string
+  /** 고객이 접수한 서비스면 그 답변을 볼 수 있는 화면 주소 */
+  answersHref?: string
   projectId: number
   /** 완료된 의뢰: 기록만 보여주고 입력을 막는다 */
   done?: boolean
@@ -32,6 +35,7 @@ interface ChatViewProps {
 
 export function ChatView({
   title,
+  answersHref,
   projectId,
   done = false,
   active = true,
@@ -74,6 +78,11 @@ export function ChatView({
       <header className={styles.header}>
         <h1 className={styles.title}>{title}</h1>
         <p className={styles.subtitle}>{done ? '완료' : '의뢰 접수 중'}</p>
+        {answersHref && (
+          <Link to={answersHref} className={styles.answersLink}>
+            고객이 접수한 답변 보기
+          </Link>
+        )}
       </header>
 
       <div className={styles.messages} aria-live="polite">
