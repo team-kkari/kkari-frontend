@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Engineer } from '@/entities/engineer'
-import { waycoMarkIcon } from '@/shared/ui'
+import { BoldText, waycoMarkIcon } from '@/shared/ui'
 import type { ChatMessage } from '../model/types'
 import { EngineerPicker } from './EngineerPicker'
 import { MessageInput } from './MessageInput'
@@ -53,7 +53,9 @@ export function ChatView({
           ) : (
             <div key={message.id} className={styles.aiGroup}>
               {message === lastMessage && !isAiTyping && <AiMark />}
-              <p className={styles.aiText}>{message.text}</p>
+              <p className={styles.aiText}>
+                <BoldText>{message.text}</BoldText>
+              </p>
             </div>
           ),
         )}

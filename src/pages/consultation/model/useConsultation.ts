@@ -16,6 +16,7 @@ import { missingLabelsOf } from '../lib/missing-fields'
 import {
   CLOSING_MESSAGE,
   designFailedMessage,
+  INFRA_FIRST_INTRO,
   INFRA_INTRO,
   TERRAFORM_CHOICE,
   TERRAFORM_INTRO,
@@ -87,6 +88,11 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
   // 마지막 설계 작업이 실패한 채로 열렸으면 그 사유 (진행 중이 아닐 때만 의미가 있다)
   const [failedDesign] = useState(() => (designJob?.status === 'FAILED' ? designJob : null))
   const [cardError, setCardError] = useState<string | null>(null)
+  // 이미 구축한 인프라가 있는 새 의뢰는 대화보다 먼저 계정을 연결한다. 그 카드들은 대화 맨 앞에 둔다
+  const infraStatus = project.infraStatus ?? 'EXISTING'
+  const [headCards, setHeadCards] = useState<ChatMessage[]>([])
+  const [infraFirstDone, setInfraFirstDone] = useState(false)
+  const connectFirst = useRef(false)
   const [awsDone, setAwsDone] = useState(false)
   const [terraformDone, setTerraformDone] = useState(false)
   // 카드가 처음 붙은 시점의 서버 메시지 개수. 그 뒤에 오가는 대화는 카드 아래에 보여준다
@@ -141,9 +147,29 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
       chatStarted.current = true
       return
     }
+    // 고객이 접수한 서비스(답변이 이미 있음)와 분석이 끝난 의뢰는 지금 순서대로 대화부터 이어 간다
+    const hasAnswers = !!project.serviceName || !!project.answers
+    if (
+      (connectFirst.current ||
+        (infraStatus === 'EXISTING' && project.stage === 'RECEIVED' && !hasAnswers)) &&
+      !infraFirstDone
+    ) {
+      if (!connectFirst.current) {
+        connectFirst.current = true
+        setHeadCards([
+          { id: nextLocalId(), role: 'ai', text: INFRA_FIRST_INTRO, connect: { kind: 'aws' } },
+        ])
+      }
+      return
+    }
     chatStarted.current = true
     send.mutate(firstMessage)
   }, [
+    infraStatus,
+    infraFirstDone,
+    project.stage,
+    project.serviceName,
+    project.answers,
     history.isSuccess,
     history.isFetchedAfterMount,
     history.isFetching,
@@ -161,7 +187,8 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
     setAnchor(
       queryClient.getQueryData(chatQueries.history(projectId).queryKey)?.messages.length ?? 0,
     )
-    const analyzed = project.stage !== 'RECEIVED'
+    // 신규 구축은 연결할 계정이 없고, 계정을 먼저 연결한 의뢰는 이미 분석을 마쳤으므로 바로 설계 확인으로 간다
+    const analyzed = project.stage !== 'RECEIVED' || infraStatus === 'NONE' || connectFirst.current
     // 이전 설계 요청이 실패한 채로 다시 열었으면 확인 카드 앞에 사유를 알려 준다
     const failedNotice: ChatMessage[] = failedDesign
       ? [{ id: nextLocalId(), role: 'ai', text: designFailedMessage(failedDesign.failureReason) }]
@@ -171,14 +198,38 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
         ? [...failedNotice, { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} }]
         : [{ id: nextLocalId(), role: 'ai', text: INFRA_INTRO, connect: { kind: 'aws' } }],
     )
-  }, [ready, send.isPending, project.stage, failedDesign, queryClient, projectId])
+  }, [ready, send.isPending, project.stage, infraStatus, failedDesign, queryClient, projectId])
 
   const updateCard = (messageId: string, update: (m: AiMessage) => AiMessage) => {
-    setCards((prev) => prev.map((m) => (m.id === messageId && m.role === 'ai' ? update(m) : m)))
+    const apply = (prev: ChatMessage[]) =>
+      prev.map((m) => (m.id === messageId && m.role === 'ai' ? update(m) : m))
+    setHeadCards(apply)
+    setCards(apply)
+  }
+
+  const isHeadCard = (messageId: string) => headCards.some((m) => m.id === messageId)
+
+  /** 카드를 그 카드가 속한 묶음(대화 앞/뒤)의 끝에 이어 붙인다 */
+  const appendAfter = (messageId: string, ...items: ChatMessage[]) => {
+    const add = (prev: ChatMessage[]) => [...prev, ...items]
+    if (isHeadCard(messageId)) setHeadCards(add)
+    else setCards(add)
+  }
+
+  /** 인프라 연결 단계가 끝났을 때. 대화 앞 카드면 이제 대화를 시작하고, 아니면 설계 확인 카드를 붙인다 */
+  const finishInfraStep = (messageId: string) => {
+    if (isHeadCard(messageId)) {
+      setInfraFirstDone(true)
+      return
+    }
+    setCards((prev) => [
+      ...prev,
+      { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
+    ])
   }
 
   const confirmChoice = (messageId: string, optionId: string) => {
-    const target = cards.find((m) => m.id === messageId)
+    const target = [...headCards, ...cards].find((m) => m.id === messageId)
     if (target?.role !== 'ai' || !target.choice || target.choice.selectedId) return
     const option = target.choice.options.find((o) => o.id === optionId)
     if (!option) return
@@ -187,26 +238,20 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
     )
     const { followUp } = option
     if (!followUp) {
-      // 건너뛰기: 바로 설계 확인으로 넘어간다
-      setCards((prev) => [
-        ...prev,
-        { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
-      ])
+      // 건너뛰기: 바로 다음 단계(대화 또는 설계 확인)로 넘어간다
+      finishInfraStep(messageId)
       return
     }
-    setCards((prev) => [
-      ...prev,
-      {
-        id: nextLocalId(),
-        role: 'ai',
-        text: followUp.message,
-        connect: { kind: followUp.connect },
-      },
-    ])
+    appendAfter(messageId, {
+      id: nextLocalId(),
+      role: 'ai',
+      text: followUp.message,
+      connect: { kind: followUp.connect },
+    })
   }
 
   const completeConnect = (messageId: string, _answerText: string, result: ConnectResult) => {
-    const target = cards.find((m) => m.id === messageId)
+    const target = [...headCards, ...cards].find((m) => m.id === messageId)
     const kind = target?.role === 'ai' ? target.connect?.kind : undefined
     updateCard(messageId, (m) =>
       m.connect ? { ...m, connect: { ...m.connect, done: true, result } } : m,
@@ -217,31 +262,22 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
       setAwsDone(true)
       // 이미 올려 둔 Terraform 파일이 있으면 그 파일 정보를 보여 주고 그대로 쓸지 묻는다
       const uploaded = project.terraformUploaded === true
-      setCards((prev) => [
-        ...prev,
-        {
-          id: nextLocalId(),
-          role: 'ai',
-          text: uploaded ? TERRAFORM_UPLOADED_INTRO : TERRAFORM_INTRO,
-          choice: uploaded ? terraformUploadedChoice(project.terraform) : TERRAFORM_CHOICE,
-        },
-      ])
+      appendAfter(messageId, {
+        id: nextLocalId(),
+        role: 'ai',
+        text: uploaded ? TERRAFORM_UPLOADED_INTRO : TERRAFORM_INTRO,
+        choice: uploaded ? terraformUploadedChoice(project.terraform) : TERRAFORM_CHOICE,
+      })
       return
     }
     if (kind === 'terraform') setTerraformDone(true)
-    setCards((prev) => [
-      ...prev,
-      { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
-    ])
+    finishInfraStep(messageId)
   }
 
   /** Terraform 업로드 카드를 건너뛴다 (선택 입력이라 올리지 않아도 설계할 수 있다) */
   const skipConnect = (messageId: string) => {
     updateCard(messageId, (m) => (m.connect ? { ...m, connect: { ...m.connect, done: true } } : m))
-    setCards((prev) => [
-      ...prev,
-      { id: nextLocalId(), role: 'ai', text: CLOSING_MESSAGE, confirm: {} },
-    ])
+    finishInfraStep(messageId)
   }
 
   const confirmDesign = (messageId: string) => {
@@ -279,10 +315,14 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
     if (send.isPending && send.variables) {
       after.push({ id: 'pending-user', role: 'user', text: send.variables })
     }
-    return [...list.slice(0, anchor), ...cards, ...after]
-  }, [history.data, send.isPending, send.variables, cards, anchor])
+    return [...headCards, ...list.slice(0, anchor), ...cards, ...after]
+  }, [history.data, send.isPending, send.variables, headCards, cards, anchor])
 
-  const lastCard = cards[cards.length - 1]
+  // 대화 앞 카드(계정 연결)를 마치기 전에는 그 카드의 마지막 항목을, 그 뒤에는 대화 뒤 카드의 마지막 항목을 본다
+  const lastCard =
+    infraFirstDone || headCards.length === 0
+      ? cards[cards.length - 1]
+      : headCards[headCards.length - 1]
   const awaitingCard =
     lastCard?.role === 'ai' &&
     ((!!lastCard.choice && !lastCard.choice.selectedId) ||
@@ -298,12 +338,15 @@ export function useConsultation({ project, firstMessage, designJob }: UseConsult
     priority: priorities || undefined,
     budget: formatBudget(profile?.monthlyBudget, profile?.currency),
     infraConnection:
-      awsDone || project.stage !== 'RECEIVED'
-        ? terraformDone || project.terraformUploaded === true
-          ? 'AWS 계정 + Terraform'
-          : 'AWS 계정 연결'
-        : undefined,
-    infraAnalysis: awsDone || project.stage !== 'RECEIVED' ? '완료' : undefined,
+      infraStatus === 'NONE'
+        ? '없음 (신규 구축)'
+        : awsDone || project.stage !== 'RECEIVED'
+          ? terraformDone || project.terraformUploaded === true
+            ? 'AWS 계정 + Terraform'
+            : 'AWS 계정 연결'
+          : undefined,
+    infraAnalysis:
+      infraStatus !== 'NONE' && (awsDone || project.stage !== 'RECEIVED') ? '완료' : undefined,
   }
 
   // 마지막 서버 메시지가 내 것이면 AI 응답이 비어 있는 것이다 (전송 실패)

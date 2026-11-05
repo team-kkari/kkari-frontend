@@ -5,6 +5,12 @@ export type ProjectStage = 'RECEIVED' | 'ANALYZED' | 'RECOMMENDED'
 export type AwsConnectionStatus =
   'NOT_CONNECTED' | 'UNTESTED' | 'CONNECTED' | 'TRUST_POLICY_ERROR' | 'PERMISSION_DENIED'
 
+/**
+ * 의뢰 신청 때 고른 인프라 상태. EXISTING=이미 AWS 인프라를 구축함(계정을 연결해 정보를 가져온다),
+ * NONE=아직 구축하지 못함(질문으로 정보를 얻는다). 백엔드 InfraStatus
+ */
+export type InfraStatus = 'EXISTING' | 'NONE'
+
 /** 사이드바 목록에 보이는 프로젝트(의뢰) 한 건. 백엔드 ProjectListResponse */
 export interface ProjectSummary {
   projectId: number
@@ -38,6 +44,8 @@ export interface ProjectDetail {
   answers?: Record<string, string> | null
   stage: ProjectStage
   awsConnectionStatus: AwsConnectionStatus
+  /** 인프라 상태. 옛 서버에서는 없고, 없으면 이미 구축한 것으로 본다 */
+  infraStatus?: InfraStatus
   /** Terraform 를 올렸는지. 새 백엔드부터 있고, 없으면(옛 서버) 모르는 것이다 */
   terraformUploaded?: boolean
   /** 올린 Terraform 파일 정보. 올리지 않았으면 null, 옛 서버에서는 없다 */
@@ -51,6 +59,8 @@ export interface ProjectDetail {
 export interface CreateProjectBody {
   companyName: string
   contactName: string
+  /** 생략하면 서버가 EXISTING 으로 본다 */
+  infraStatus?: InfraStatus
 }
 
 export const PROJECT_STAGE_LABEL: Record<ProjectStage, string> = {

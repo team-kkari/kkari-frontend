@@ -22,8 +22,8 @@ export function ConsultationPage() {
   const projectId = param !== undefined && /^\d+$/.test(param) ? Number(param) : null
 
   const create = useMutation({
-    mutationFn: ({ companyName, contactName }: StartValues) =>
-      createProject({ companyName, contactName }),
+    mutationFn: ({ companyName, contactName, infraStatus }: StartValues) =>
+      createProject({ companyName, contactName, infraStatus }),
     onSuccess: ({ projectId: createdId }, { message }) => {
       void queryClient.invalidateQueries({ queryKey: projectQueries.all() })
       navigate(projectPath(createdId), { state: { firstMessage: message } })
