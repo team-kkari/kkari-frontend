@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { PROJECT_STAGE_LABEL, projectQueries } from '@/entities/project'
+import { Link } from 'react-router'
 import { defaultAvatar, logoutIcon, plusIcon } from '@/shared/ui'
 import styles from './AppSidebar.module.css'
 
@@ -23,7 +24,9 @@ export function AppSidebar({
 
   return (
     <aside className={styles.sidebar}>
-      <p className={styles.logo}>Wayco</p>
+      <Link to="/" className={styles.logo} aria-label="Wayco 홈으로">
+        Wayco
+      </Link>
       <button type="button" className={styles.newButton} onClick={onNewConsultation}>
         <img src={plusIcon} alt="" width={22} height={22} />새 의뢰 시작
       </button>

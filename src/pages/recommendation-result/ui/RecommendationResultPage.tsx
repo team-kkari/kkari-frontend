@@ -1,30 +1,40 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { GlossaryText } from '@/entities/glossary'
-import { projectQueries } from '@/entities/project'
+import { projectPath, projectQueries } from '@/entities/project'
 import {
   isArchitectureNotFound,
   recommendationQueries,
   type RecommendationResult,
 } from '@/entities/recommendation'
 import { CompareModal } from '@/features/compare-recommendations'
-import { ApiError } from '@/shared/api'
+import { useLogout } from '@/features/logout'
+import { ApiError, useSessionStore } from '@/shared/api'
 import { icons } from '@/shared/ui'
+import { AppSidebar } from '@/widgets/app-sidebar'
 import { ArchitectureCanvas } from '@/widgets/architecture-canvas'
 import { CostSummary } from '@/widgets/cost-summary'
 import { RecommendationPanel } from '@/widgets/recommendation-panel'
-import { Sidebar } from '@/widgets/sidebar'
 import { CostOnly } from './CostOnly'
 import { Notice } from './Notice'
 
 export function RecommendationResultPage() {
   const { projectId: param = '' } = useParams()
   const projectId = /^\d+$/.test(param) ? Number(param) : null
+  const navigate = useNavigate()
+  const logout = useLogout()
+  const role = useSessionStore((state) => state.session?.role)
 
   return (
     <div className="flex h-screen min-w-[1280px] gap-[30px] bg-canvas p-5">
-      <Sidebar />
+      <AppSidebar
+        activeId={projectId ?? undefined}
+        userName={role === 'CUSTOMER' ? '고객' : 'MSP 엔지니어'}
+        onNewConsultation={() => navigate('/')}
+        onSelect={(id) => navigate(projectPath(id))}
+        onLogout={logout}
+      />
       {projectId === null ? (
         <Notice
           tone="error"
